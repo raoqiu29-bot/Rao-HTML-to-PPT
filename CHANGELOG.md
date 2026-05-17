@@ -8,6 +8,57 @@
 
 ---
 
+## v5.2.4 · 2026-05-12(预防性 patch · Chrome 缓存)
+
+**主线**:不是修 bug,是**预防**未来 Chrome 缓存 / BFCache 问题。
+
+### 真实场景背景
+
+饶秋报告 v5.2.3 在 **Chrome 普通模式仍翻不了页**,但:
+- ✅ Safari 完全正常
+- ✅ Chrome 隐身窗口完全正常
+
+**根因**:**Chrome 扩展干扰**(隐身默认禁扩展)。常见嫌疑扩展:沙拉查词 / 沉浸式翻译 / Vimium / Tampermonkey 等。**这跟 skill 代码无关,是浏览器环境问题**。
+
+但顺便给所有未来 PPT 加防御 — 即使 skill 代码没问题,Chrome 其他 quirks(BFCache / Service Worker)也可能引发类似"看起来代码没生效"现象。
+
+### ✨ 新增(预防性)
+
+- **no-cache meta 三件套**(给 file:// 协议浏览器一个明确信号):
+  ```html
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  ```
+
+- **BFCache 复活防御**:
+  ```javascript
+  window.addEventListener('pageshow', function(e){
+    if(e.persisted) window.location.reload();
+  });
+  ```
+  从浏览器 history back/forward 复活时,强制重载页面,确保 Slideshow 干净初始化 + 不被 BFCache 的旧 DOM state 污染。
+
+### 不修复的事
+
+**Chrome 扩展干扰** — 不是 skill 能控制的范围。建议用户:
+- **现场播放优先用 Safari**(macOS 自带,跟 Chrome 同源 WebKit,视觉效果一致,无扩展生态)
+- 或在 Chrome 里临时禁扩展(扩展程序 → 关 → 重启 Chrome)
+
+### Patch 范围
+
+同 v5.2.3,4 个文件全部同步。
+
+### 给 SKILL.md / 文档的提示
+
+**Chrome 普通模式不工作时的诊断顺序**(写进 SKILL.md):
+1. **试 Safari** — 同 macOS 自带,90% 直接 OK
+2. **试 Chrome 隐身窗口**(Cmd+Shift+N)— 验证是不是扩展问题
+3. **如果隐身 OK,普通不 OK** → 100% 是某个 Chrome 扩展,逐个禁
+4. **如果隐身也不 OK** → 可能是真的 skill bug,跑 debug 命令贴日志
+
+---
+
 ## v5.2.3 · 2026-05-12(hotfix · 关键修复)
 
 **主线**:修 v5.2.2 之后仍然存在的翻页失效问题。
