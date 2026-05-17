@@ -2169,11 +2169,13 @@ N (Next)   - 下一步:<span class="ph">[这一轮完成后下一轮要什么]</
     // 让浏览器原生 contenteditable 处理:空格输空格 / 方向键移光标 / 字母输入 / Enter 换行 / Backspace 删除
     // 保留 Ctrl+S(给 inline edit 的保存 handler)和 Esc(给退出编辑模式 handler)
     document.addEventListener('keydown', function(e) {
+      // v5.2.3 关键修复:非编辑模式下完全不拦截
+      // 即使 stage 里有残留 contenteditable(bug 数据 / 加载意外),只要没按 E 进编辑模式,翻页正常
+      if (!document.body.classList.contains('edit-mode')) return;
       if (!e.target || !e.target.isContentEditable) return;
       if ((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S')) return;
       if (e.key === 'Escape') return;
       // v5.2.2: PageUp/PageDown/Home/End 即使在 contenteditable 上也允许翻页
-      // 这些键在文字编辑里没有意义,但用户期待翻页,放过去
       if (e.key === 'PageDown' || e.key === 'PageUp' || e.key === 'Home' || e.key === 'End') return;
       e.stopPropagation();
     }, true);

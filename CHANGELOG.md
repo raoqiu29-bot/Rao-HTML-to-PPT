@@ -8,6 +8,64 @@
 
 ---
 
+## v5.2.3 · 2026-05-12(hotfix · 关键修复)
+
+**主线**:修 v5.2.2 之后仍然存在的翻页失效问题。
+
+### 🛠️ 真实踩坑修复
+
+#### 修复 1 · capture listener 漏了"必须编辑模式"硬条件
+
+**现象**(用户原话):"我浏览器也重新关闭,然后重新再打开了。我也进行了 Cmd+Shift+R 强制刷新。然后就还是不行,你依然不能进行翻页。**但是我点其他的这些就是可以进行翻页的**,就只有刚刚你做过的那个内容是没办法进行翻页的。"
+
+**关键线索**:别的 PPT 翻页 OK,只有加了 v5.2 inline editing 的 PPT 翻不了 → **100% 是我加的 capture listener 的 bug**。
+
+**根因**:
+- v5.2.1 capture listener 的逻辑:`e.target.isContentEditable === true` → stopPropagation
+- **没检查 body 是不是编辑模式**
+- 如果 stage 里**任何元素**残留 contenteditable(因为某次保存 bug / 旧数据 / Chrome 的 history restore 等),即使用户**没按 E 进编辑模式**,只要按键时 e.target 命中那个残留元素,事件就被 stopPropagation
+- 模板的 Slideshow 翻页 JS 收不到事件,翻页失效
+- 用户感觉"按方向键完全没反应",但其他 PPT 正常
+
+**v5.2.2 试图修复**(restoreFromStorage 加 sanitize)— 只解决了 localStorage 那条路径,**没解决其他来源的残留 contenteditable**(比如浏览器 Form Restoration / 用户手动 inspect DOM 改过的状态等)。
+
+**v5.2.3 真正修复**(防御性硬条件):
+```javascript
+document.addEventListener('keydown', function(e) {
+  // v5.2.3:非编辑模式下完全不拦截
+  // 即使 stage 里有残留 contenteditable,只要 body 没 edit-mode class,翻页 100% 正常
+  if (!document.body.classList.contains('edit-mode')) return;
+  // ...原有逻辑
+}, true);
+```
+
+**核心改变**:从"看 target"改成"看 body 状态"。**body 是用户显式按 E 进编辑模式才会加 edit-mode class**,完全由用户控制,不受任何残留数据影响。
+
+**为什么这是正确修复**:
+- 非编辑模式 → capture listener 直接 return → 翻页绝对不受影响
+- 编辑模式 + focus 在 contenteditable → 拦截方向键/空格(避免输入空格时误翻页)
+- 编辑模式 + blur 在 body → 不拦截(因为 body 不是 contenteditable),翻页恢复
+
+**Lesson learned**:加 capture listener 拦事件传播时,**必须用最严格的"应该生效条件"**,而不是"应该跳过条件"。前者默认安全(只在明确需要时拦截),后者默认不安全(可能误拦截)。
+
+#### Patch 范围
+
+同 v5.2.2,4 个文件全部同步。
+
+#### 用户验证
+
+打开任何 v5.2.3 PPT(强制刷新 Cmd+Shift+R)→ **直接按方向键 / 空格 / PageDown** → 立刻能翻页(不需要任何额外操作 / 不需要 reset localStorage)。
+
+#### 演进总结(v5.2.x 的 3 个版本)
+
+| 版本 | 修复 | 真正解决问题? |
+|---|---|---|
+| v5.2.1 | capture listener 阻止空格/方向键在编辑文字时翻页 | ✓ 编辑文字 OK,但**意外导致非编辑模式也翻不了**(因为没保护 body 状态) |
+| v5.2.2 | restoreFromStorage 加 sanitize + PageUp/Down 白名单 | 部分(只修 localStorage 路径,其他残留路径没修) |
+| **v5.2.3** | **capture listener 加 body.edit-mode 硬条件** | ✓✓ **从根上保证非编辑模式翻页不受影响** |
+
+---
+
 ## v5.2.2 · 2026-05-12(hotfix)
 
 **主线**:修 v5.2.1 之后用户立刻发现的下一个 bug — **打开 PPT 就翻不了页**。
