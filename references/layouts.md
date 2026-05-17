@@ -355,3 +355,522 @@
 这是饶秋老师课程理念"标题即结论"的体现,也是真正麦肯锡风格的底层逻辑。
 
 字号偏小的问题 99% 不是 CSS 问题,是版式选择和内容密度问题。先看密度规则,再考虑改 CSS。
+
+---
+
+# 培训片大纲模板(v5.5 新增 · 借鉴 code-on-sunday/slide-deck-generator)
+
+**用在 Mode B(把大纲转 PPT)和 Mode A(从零做培训片)。**
+
+这是真正成熟的成人学习节奏,适合 1-4 小时的培训交付场景。客户提案 / 自媒体讲解不强制按这个,但培训片应该按这个排。
+
+## 五段循环(Learning Cycle)
+
+每一个"知识点"都按这五段走:
+
+```
+Problem  →  Discussion  →  Concept  →  Example  →  Takeaway
+触发好奇    引导思考       讲清概念    真实例子     强化记忆
+1 张片     0-1 张片      3-6 张片    1-2 张片    1 张片
+```
+
+| 段 | 目的 | 张数 | 版式建议 |
+|---|---|---|---|
+| **Problem** | 触发好奇 + 相关性 | 1 | Big Quote(把问题写成大字)或 Cover-like 全屏标题 |
+| **Discussion** | 让学员动脑(可选) | 0-1 | Big Quote 风的开放问题,2-3 行字 |
+| **Concept** | 讲清框架 | **3-6** | 章节扉页 + 卡片网格 / 流程时间线 / 2x2 矩阵 |
+| **Example** | 真实场景 | 1-2 | metric+split 或带截图的卡片 |
+| **Takeaway** | 强化记忆 | 1 | Key Insight 或 Big Number |
+
+**核心规则**:`1 idea = 1 slide`。Concept 段如果有 5 个原因,**写 5 张片**(每张 Cause #1 / #2 / ...),不要塞一张片上。
+
+## 整份培训片的 Module 结构
+
+```
+Introduction(开场)        5-10 张
+Module 1                   25-40 张
+  ├─ Cycle 1               5-10 张
+  ├─ Cycle 2               5-10 张
+  ├─ Cycle 3               5-10 张
+  └─ Cycle 4               5-10 张
+Module 2                   25-40 张
+Module 3                   25-40 张
+Wrap-up(收束)             5-10 张
+```
+
+## 时长 → 张数对照表
+
+| 培训时长 | 总张数 | Module 数 | 备注 |
+|---|---|---|---|
+| 30 分钟分享 | 15-25 | 1 | 单 Module,Cycle ≤ 3 |
+| 1 小时讲座 | 30-50 | 1-2 | |
+| 2 小时工作坊 | 60-90 | 2-3 | |
+| **半天 (4 小时) 培训** | **100-140** | **3-4** | 饶秋老师 AI 培训典型节奏 |
+| 全天 (7 小时) 培训 | 180-240 | 5-6 | 中间留休息和实操 |
+
+**计算口径**:培训现场约 **每张片讲 1.5-2 分钟**(包含 Q&A 缓冲)。4 小时 = 240 分钟,扣掉 20% 实操和休息 ≈ 192 分钟讲解 ÷ 1.5 = 128 张,落在 100-140 范围内。
+
+## 视觉比例建议(培训片专用)
+
+| 类型 | 占比 | 怎么算 |
+|---|---|---|
+| **视觉为主**(图 / 卡 / 流程) | 60-70% | 卡片网格 + metric+split + 流程时间线 + 矩阵 + Big Number / Quote |
+| **图表为主**(数据可视化) | 10-15% | 见下方 SVG 图表章节 |
+| **文字解释**(短列表) | 15-20% | 章节扉页 + Key Insight + 任务卡 |
+
+**如果文字片 > 30%,就是讲义不是培训片**。重新审视,把能拆成图的拆掉。
+
+## Mode B 工作流(把客户给的大纲转成培训片)
+
+1. **先看大纲属于什么时长** → 查对照表确定总张数和 Module 数
+2. **把大纲切成 Module** → 每个 Module 25-40 张
+3. **每个 Module 切成 Cycle** → 每个 Cycle 5-10 张
+4. **每个 Cycle 走五段** → Problem / Discussion / Concept × N / Example / Takeaway
+5. **逐张选版式** → 按"视觉比例"建议,先排版式,再填内容
+6. **跑 Ghost Deck Test** → 只读标题串能读出培训逻辑
+
+---
+
+# 数据 Dashboard 版式(v5.5 新增 · 借鉴 robonuggets/marp-slides)
+
+> **饶秋老师说"我们之前文字太单一了"——这一节就是补这个洞。**
+
+**用在哪**:培训片的数据对比 / 客户提案的业绩页 / 莱美的业绩 ROI 页 / 麦肯锡风的数据 dashboard 报告页。
+
+**核心原则**:这些组件是**信息处理页**的内容,必须包在 `<div class="page">` 里(参见本文件顶部"信息处理页的标准结构")。
+
+## 颜色定义(放在模板顶部 `:root`)
+
+```css
+:root {
+  /* 复用既有麦肯锡风变量 */
+  --c-brand: #051C2C;     /* 主色 */
+  --c-warm:  #E53935;     /* 警示 / 客户色 */
+
+  /* 新增 dashboard 语义色 */
+  --c-up:    #16A34A;     /* 上升 / 正向 */
+  --c-down:  #DC2626;     /* 下降 / 负向 */
+  --c-flat:  #6B7280;     /* 持平 */
+  --c-warn:  #F59E0B;     /* 注意 */
+
+  /* SVG 图表线条 */
+  --chart-grid:  #E5E7EB; /* 网格线 */
+  --chart-axis:  #9CA3AF; /* 坐标轴 */
+}
+```
+
+## 13.1 Metric Card · 单数字卡片(配顶部色边)
+
+**用途**:KPI 仪表板顶部那一排数字(收入 / 转化 / ROAS / 留存率)。
+
+```html
+<div class="metric-card">
+  <div class="metric-card__topbar"></div>
+  <div class="metric-card__label">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>
+    </svg>
+    营收
+  </div>
+  <div class="metric-card__value">¥41,946</div>
+  <div class="metric-card__trend metric-card__trend--up">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
+    +49.3% vs 上月
+  </div>
+</div>
+```
+
+```css
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  background: #FBFBFD;
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+}
+.metric-card__topbar {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--c-brand), transparent);
+}
+.metric-card__label {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--c-ink-3);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.metric-card__label .icon { width: 14px; height: 14px; }
+.metric-card__value {
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-size: 2.2rem; font-weight: 600;
+  color: var(--c-brand);
+  line-height: 1;
+}
+.metric-card__trend {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  display: flex; align-items: center; gap: 0.25rem;
+}
+.metric-card__trend--up { color: var(--c-up); }
+.metric-card__trend--down { color: var(--c-down); }
+.metric-card__trend--flat { color: var(--c-flat); }
+.metric-card__trend svg { width: 10px; height: 10px; }
+```
+
+**密度上限**:一行 4 张为上限,3 张为推荐。
+
+## 13.2 Donut Ring · 单环占比
+
+**用途**:转化率 / 完成率 / 单一占比指标(89% 学员通过 / 76% 任务完成)。
+
+```html
+<div class="donut">
+  <svg viewBox="0 0 200 200" width="160" height="160">
+    <!-- 底环 -->
+    <circle cx="100" cy="100" r="74" fill="none" stroke="#E5E7EB" stroke-width="18"/>
+    <!-- 数据环(89%,顺时针从顶部开始)-->
+    <circle cx="100" cy="100" r="74" fill="none"
+            stroke="#051C2C" stroke-width="18"
+            stroke-dasharray="465" stroke-dashoffset="51"
+            stroke-linecap="round"
+            transform="rotate(-90 100 100)"/>
+    <!-- 中间数字 -->
+    <text x="100" y="105" text-anchor="middle"
+          font-family="Fraunces, serif" font-size="36" font-weight="600" fill="#051C2C">89%</text>
+    <text x="100" y="130" text-anchor="middle"
+          font-family="Manrope, sans-serif" font-size="11" fill="#5C6772">学员通过</text>
+  </svg>
+</div>
+```
+
+**数学公式(必背)**:
+```
+circumference = 2 * π * r
+r = 74  →  circumference ≈ 465
+当显示 X%  →  dashoffset = 465 - (465 × X / 100)
+   89%  →  dashoffset = 465 - 414 = 51
+   76%  →  dashoffset = 465 - 353 = 112
+   50%  →  dashoffset = 465 - 232 = 233
+```
+
+## 13.3 Pie / Multi-Segment Donut · 多段饼图
+
+**用途**:渠道占比 / 角色分布 / 类型构成。
+
+```html
+<svg viewBox="0 0 200 200" width="180" height="180">
+  <!-- 段 1: 50% 主色,offset=0 -->
+  <circle cx="100" cy="100" r="74" fill="none"
+          stroke="#051C2C" stroke-width="50"
+          stroke-dasharray="232 465" stroke-dashoffset="0"
+          transform="rotate(-90 100 100)"/>
+  <!-- 段 2: 30%,offset=-232 -->
+  <circle cx="100" cy="100" r="74" fill="none"
+          stroke="#2251FF" stroke-width="50"
+          stroke-dasharray="139 465" stroke-dashoffset="-232"
+          transform="rotate(-90 100 100)"/>
+  <!-- 段 3: 20%,offset=-(232+139)=-371 -->
+  <circle cx="100" cy="100" r="74" fill="none"
+          stroke="#E53935" stroke-width="50"
+          stroke-dasharray="93 465" stroke-dashoffset="-371"
+          transform="rotate(-90 100 100)"/>
+</svg>
+```
+
+**算段长**:`段长 = (该段百分比 / 100) × circumference`。`stroke-dasharray="段长 总长"` 让每段只画自己那一截。`stroke-dashoffset` 累计前面所有段的负值,把当前段推到正确起点。
+
+## 13.4 Sparkline · 内联迷你折线
+
+**用途**:数字旁边的小趋势线,占地极小(50×16)。
+
+```html
+<span class="sparkline">
+  <svg width="50" height="16" viewBox="0 0 50 16">
+    <polyline points="0,14 8,12 16,10 24,8 32,11 40,6 50,2"
+              fill="none" stroke="#16A34A" stroke-width="1.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</span>
+```
+
+**坐标技巧**:`x` 轴均匀分布,`y` 轴 `0=顶/14=底`(SVG y 轴向下)。数值高 → y 小。
+
+## 13.5 Stacked Bar · 横向堆叠条
+
+**用途**:进度构成 / 时间投入分布 / 多类占比对比。
+
+```html
+<div class="stacked-bar">
+  <div style="flex: 50; background: #051C2C;"  title="麦肯锡风 50%"></div>
+  <div style="flex: 30; background: #2251FF;"  title="客户主题 30%"></div>
+  <div style="flex: 20; background: #E53935;"  title="实操 20%"></div>
+</div>
+<div class="stacked-bar__legend">
+  <span><i style="background:#051C2C"></i>麦肯锡风 50%</span>
+  <span><i style="background:#2251FF"></i>客户主题 30%</span>
+  <span><i style="background:#E53935"></i>实操 20%</span>
+</div>
+```
+
+```css
+.stacked-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #F3F4F6;
+}
+.stacked-bar > div { transition: opacity 0.2s; }
+.stacked-bar > div:hover { opacity: 0.85; }
+
+.stacked-bar__legend {
+  display: flex; gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.75rem; color: var(--c-ink-3);
+}
+.stacked-bar__legend i {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+```
+
+## 13.6 Vertical Bar Chart · 纵向柱状图
+
+**用途**:月度对比 / 各模块得分 / 6-8 个类目的数值比较。
+
+```html
+<div class="vbar-chart">
+  <div class="vbar" style="--h: 35%;"><span class="vbar__label">M1</span></div>
+  <div class="vbar" style="--h: 62%;"><span class="vbar__label">M2</span></div>
+  <div class="vbar" style="--h: 48%;"><span class="vbar__label">M3</span></div>
+  <div class="vbar" style="--h: 88%;"><span class="vbar__label">M4</span></div>
+  <div class="vbar" style="--h: 71%;"><span class="vbar__label">M5</span></div>
+  <div class="vbar" style="--h: 55%;"><span class="vbar__label">M6</span></div>
+</div>
+```
+
+```css
+.vbar-chart {
+  display: flex; align-items: flex-end;
+  gap: 0.8rem;
+  height: 140px;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--c-line);
+  position: relative;
+}
+.vbar {
+  flex: 1;
+  height: var(--h);
+  background: linear-gradient(180deg, var(--c-brand), #2A3744);
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  min-height: 4px;
+}
+.vbar__label {
+  position: absolute;
+  bottom: -1.3rem; left: 0; right: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: var(--c-ink-3);
+}
+```
+
+## 13.7 Line / Area Chart · 折线带面积
+
+**用途**:时间序列趋势(月度营收 / 周度学员数 / 季度 ROAS)。
+
+```html
+<svg viewBox="0 0 900 240" preserveAspectRatio="none" width="100%" height="200">
+  <!-- 网格线 -->
+  <line x1="0" y1="60"  x2="900" y2="60"  stroke="#E5E7EB" stroke-width="1" stroke-dasharray="2,4"/>
+  <line x1="0" y1="120" x2="900" y2="120" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="2,4"/>
+  <line x1="0" y1="180" x2="900" y2="180" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="2,4"/>
+
+  <!-- 面积填充 -->
+  <defs>
+    <linearGradient id="area-grad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#051C2C" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#051C2C" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <polygon fill="url(#area-grad)"
+           points="0,180 100,150 200,160 300,120 400,100 500,80 600,90 700,60 800,40 900,30 900,240 0,240"/>
+
+  <!-- 折线 -->
+  <polyline fill="none" stroke="#051C2C" stroke-width="2.5"
+            points="0,180 100,150 200,160 300,120 400,100 500,80 600,90 700,60 800,40 900,30"/>
+
+  <!-- 数据点 -->
+  <circle cx="0"   cy="180" r="4" fill="#051C2C"/>
+  <circle cx="300" cy="120" r="4" fill="#051C2C"/>
+  <circle cx="600" cy="90"  r="4" fill="#051C2C"/>
+  <circle cx="900" cy="30"  r="4" fill="#E53935"/>  <!-- 最新值用警示红 -->
+
+  <!-- 目标虚线 -->
+  <line x1="0" y1="50" x2="900" y2="50" stroke="#E53935" stroke-width="1.5" stroke-dasharray="6,4"/>
+</svg>
+```
+
+**坐标系约定**:viewBox `0 0 900 240`,顶=0,底=240。值高 → y 小。`preserveAspectRatio="none"` 让 SVG 横向拉满容器。
+
+## 13.8 Half-Circle Gauge · 半圆表盘
+
+**用途**:评分 / 健康度 / 完成度的视觉冲击表达(0-100 范围)。
+
+```html
+<svg viewBox="0 0 200 120" width="200" height="120">
+  <!-- 底弧 -->
+  <path d="M 20 100 A 80 80 0 0 1 180 100"
+        fill="none" stroke="#E5E7EB" stroke-width="14" stroke-linecap="round"/>
+  <!-- 值弧(76%,半圆总长 ≈ 251) -->
+  <path d="M 20 100 A 80 80 0 0 1 180 100"
+        fill="none" stroke="#16A34A" stroke-width="14" stroke-linecap="round"
+        stroke-dasharray="251" stroke-dashoffset="60"/>
+  <!-- 中间数字 -->
+  <text x="100" y="90" text-anchor="middle"
+        font-family="Fraunces, serif" font-size="32" font-weight="600" fill="#051C2C">76</text>
+  <text x="100" y="108" text-anchor="middle"
+        font-family="Manrope" font-size="10" fill="#5C6772">学员满意度</text>
+</svg>
+```
+
+**dashoffset 公式**:`offset = 251 × (1 - 值/100)`。76 分 → 251 × 0.24 ≈ 60。
+
+## 13.9 Status Dots · 状态圆点
+
+**用途**:列表项前缀,表达 ON/OFF/警告/异常。
+
+```html
+<svg class="dot dot--up"   width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#16A34A"/></svg>
+<svg class="dot dot--warn" width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#F59E0B"/></svg>
+<svg class="dot dot--down" width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#DC2626"/></svg>
+<svg class="dot dot--flat" width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#6B7280"/></svg>
+```
+
+直接 inline 在表格 / 列表前面。
+
+## 13.10 Verdict Tag · 结论标签
+
+**用途**:决策列表的"放大 / 砍掉 / 观察"三态结论。
+
+```html
+<span class="verdict verdict--scale">放大</span>
+<span class="verdict verdict--kill">砍掉</span>
+<span class="verdict verdict--review">观察</span>
+```
+
+```css
+.verdict {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.verdict--scale  { color: #16A34A; background: #16A34A12; border-color: #16A34A33; }
+.verdict--kill   { color: #DC2626; background: #DC262612; border-color: #DC262633; }
+.verdict--review { color: #F59E0B; background: #F59E0B12; border-color: #F59E0B33; }
+```
+
+## 13.11 Hover Row · 表格悬停高亮
+
+**用途**:数据表格 / 列表的可读性增强(鼠标停留时本行轻微高亮)。
+
+```html
+<div class="hover-row">
+  <span>客户 A</span><span>¥12,500</span><span>+12%</span>
+</div>
+```
+
+```css
+.hover-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.hover-row:hover { background: #F8F9FA; }
+[data-theme="dark"] .hover-row:hover { background: #15263D; }
+```
+
+## 13.12 一页 Dashboard 范例(怎么组合上面这些)
+
+**这是个标准的"业绩仪表板"页**,展示组合方式:
+
+```html
+<section class="slide" data-name="2026 Q1 业绩仪表板">
+  <div class="page">
+    <div class="page-meta">
+      <span class="module">模块 3 · 业绩复盘</span>
+      <span>03 / 12</span>
+    </div>
+    <h2 class="page-title">2026 Q1 业绩仪表板</h2>
+    <p class="page-subtitle">营收增长 49.3%,但获客成本同步上升 32%,需要关注效率</p>
+
+    <div class="page-body">
+      <!-- 顶部 metric card 排(4 个 KPI)-->
+      <div class="metric-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+        <div class="metric-card">...</div>
+        <div class="metric-card">...</div>
+        <div class="metric-card">...</div>
+        <div class="metric-card">...</div>
+      </div>
+
+      <!-- 中部:左折线 + 右 donut -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-top:1.5rem;">
+        <div>
+          <h3 style="font-size:0.8rem;color:var(--c-ink-3);">月度营收趋势</h3>
+          <!-- Line/Area chart -->
+          <svg viewBox="0 0 900 240">...</svg>
+        </div>
+        <div>
+          <h3 style="font-size:0.8rem;color:var(--c-ink-3);">渠道占比</h3>
+          <!-- Donut -->
+          <svg viewBox="0 0 200 200">...</svg>
+        </div>
+      </div>
+
+      <!-- 底部 source line -->
+      <p class="page-source" style="margin-top:1rem;font-size:0.7rem;color:var(--c-ink-3);">
+        SOURCE / 内部经营数据 · 2026-03-31 截止 · 已脱敏
+      </p>
+    </div>
+  </div>
+</section>
+```
+
+## Dashboard 页的密度上限
+
+| 元素 | 上限 |
+|---|---|
+| Metric card | 一行 ≤ 4 |
+| Donut / Gauge / Pie | 一页 ≤ 3 |
+| Line / Area chart | 一页 ≤ 2 |
+| Vertical bar | 一页 ≤ 1(给足横向空间) |
+| Sparkline | 不限,因为内联 |
+
+**超过上限就拆页**(同"信息密度铁律")。一个 dashboard 页 ≤ 6 个独立图表区域,否则没人看得清。
+
+---
+
+## 何时用 Dashboard 版式 vs 普通版式
+
+| 场景 | 用 Dashboard | 用普通版式(卡片 / metric-row) |
+|---|---|---|
+| 培训片的"行业数据"页 | ✅ Donut / Gauge 单图为主 | |
+| 培训片的"学员任务"页 | | ✅ 卡片网格 |
+| 客户提案的"业绩复盘" | ✅ 全套 dashboard 范例 | |
+| 客户提案的"我们的服务" | | ✅ 卡片网格 + Key Insight |
+| 莱美的"双月业绩" | ✅ Metric card + Vertical bar | |
+| 自媒体小红书封面 | | ✅ Big Number / Big Quote |

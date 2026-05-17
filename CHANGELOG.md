@@ -8,6 +8,140 @@
 
 ---
 
+## v5.5.0 · 2026-05-18(借鉴 3 个外部仓库,补齐"文字太单一了"的洞)
+
+**主线**:饶秋读了 3 个 GitHub PPT 仓库——zarazhangrui/frontend-slides(17.8k stars)+ code-on-sunday/slide-deck-generator + robonuggets/marp-slides——决定**做 P0(4 件)+ P1(2 件)**。重点是 SVG 配图,补"文字太单一"的洞。
+
+### ✨ 新增
+
+#### 1. 培训片大纲模板:五段循环 + Module 时长表(借鉴 slide-deck-generator)
+
+**加在哪**:`references/layouts.md` 末尾新增"培训片大纲模板"章节。
+
+**核心**:成人学习的 Problem → Discussion → Concept → Example → Takeaway 五段循环 + 时长对照表(30 分钟 / 1 小时 / 2 小时 / **4 小时(100-140 张)** / 全天)+ 视觉比例建议(视觉 60-70% / 图表 10-15% / 文字 15-20%)。
+
+**服务工作面**:培训交付。Mode B(把客户大纲转成 PPT)流程现在有了硬节奏参考——4 小时培训怎么排 100-140 张?切几个 Module?每个 Module 几个 Cycle?都有表。
+
+#### 2. SVG 数据 Dashboard 版式库(借鉴 marp-slides)
+
+**加在哪**:`references/layouts.md` 末尾新增"数据 Dashboard 版式"章节(代号"版式 13",含 12 个子组件)。
+
+**包含 12 个生产可用组件**:
+- **Metric card**(KPI 卡片,顶部 2px 渐变描边 + icon + 大数字 + trend arrow)
+- **Donut ring**(单环占比,含 dashoffset 数学公式表)
+- **Pie / multi-segment donut**(多段饼图)
+- **Sparkline**(50×16 内联迷你折线)
+- **Stacked bar**(横向堆叠条 + 图例)
+- **Vertical bar chart**(纵向柱状图,CSS variable 控高度)
+- **Line / Area chart**(SVG 折线 + 渐变面积 + 网格 + 目标线)
+- **Half-circle gauge**(半圆表盘,含 dashoffset 公式)
+- **Status dots**(8×8 圆点,绿/黄/红/灰四态)
+- **Verdict tag**(放大 / 砍掉 / 观察 三态标签)
+- **Hover row**(表格悬停高亮)
+- **一页 Dashboard 范例**(展示组合方式 + 密度上限)
+
+**为什么做**:饶秋原话——"我们之前文字太单一了"。模板原来只有"卡片网格 / metric-row / 2x2 矩阵",**没有真正能塞数字的可视化原语**。补完后,客户提案 / 莱美业绩页 / 培训数据页都能直接抄。
+
+**保持麦肯锡风**:所有图表颜色锁定 `--c-brand` / `--c-warm` / `--c-up` / `--c-down`,没有渐变色饼图、没有荧光色,字体跟随模板。
+
+#### 3. SVG icon 库(借鉴 marp-slides)
+
+**加在哪**:新建 `references/icons.md`。
+
+**包含 24 个基础图标**(Lucide 标准):
+- 趋势数据(6 个):arrow-up/down/right · trending-up · bar-chart · pie-chart
+- 状态反馈(5 个):check · check-circle · x-circle · alert-triangle · info
+- 时间节奏(3 个):clock · calendar · zap
+- 内容主体(5 个):file-text · book-open · users · target · lightbulb
+- 工具操作(5 个):edit · download · search · settings · play
+- 商业业绩(5 个):dollar-sign · activity · award · globe · shield
+
+**统一规范**:viewBox `0 0 24 24` · stroke 1.5 · `fill:none` + `stroke:currentColor` · round linecap/linejoin。
+
+**4 档尺寸**:inline(14-16px)/ card(20-24px)/ feature(32-44px)/ hero(56-72px)。
+
+**配色规则表**:中性 → `--c-ink-3`,主色 → `--c-brand`,正向 → `--c-up`(#16A34A),负向 → `--c-down`(#DC2626),警告 → `--c-warn`(#F59E0B)。
+
+#### 4. Content density 表 · 每种版式的内容硬上限(借鉴 frontend-slides)
+
+**加在哪**:`references/checklist.md` 的 P0 段加 8a 条。
+
+**核心**:把"一页一观点"从抽象规则变成机械可查的表——封面 = 1 主标题 + 1 副标题 + 0-1 装饰;卡片网格 = 标题 + 2×3 或 3×2 共 6 卡;Big Number = 1 数字 + ≤ 8 字说明 + 1 source;Big Quote = ≤ 3 行 / ≤ 40 字;**Dashboard 页(新)** = 一行 ≤ 4 metric / 一页 ≤ 3 donut / ≤ 2 line / ≤ 1 vertical bar。
+
+**超量信号速查**:`.page-body` 出现垂直滚动条 / 字号被缩到 < 14px / 卡片 gap < 0.5rem → 内容超了,**不要改 CSS,拆页**。
+
+#### 5. 培训片专属:按时长查张数表(借鉴 slide-deck-generator)
+
+**加在哪**:`references/checklist.md` 的 P0 段加 8b 条。
+
+**核心**:做培训片强制查表,4 小时 = 100-140 张是基准。算口径:每张约 1.5-2 分钟(含 Q&A 缓冲)。
+
+#### 6. Anti AI-slop 反清单(借鉴 frontend-slides + slide-deck-generator)
+
+**加在哪**:`references/design-system.md` 末尾新增"Anti AI-Slop 反清单"章节。
+
+**核心**:把"AI 套版"的标志(Inter 字体 / `#6366f1` indigo / 紫粉渐变 / 全居中堆栈 / 玻璃拟态 + 拟物 + 阴影三件套 / 写实插画 / 每页都飞进来)白纸黑字列出来全禁。配套"眯眼测试"(模糊看 deck,任何一条命中就要重做)。
+
+#### 7. CSS Gotchas 踩坑警示档(借鉴 frontend-slides + 我们自己 v5.2.x 的坑)
+
+**加在哪**:`references/design-system.md` 末尾新增"CSS Gotchas"章节。
+
+**包含 6 个坑**:
+1. **`-clamp()` 静默失败**:浏览器丢弃整条声明无报错,必须用 `calc(-1 * clamp(...))`
+2. **clamp() 三值单调**:max < min 会退化为常量
+3. **`vh` 在 iOS Safari 被工具栏吞掉**:双行写法 `height: 100vh; height: 100dvh;`
+4. **`~` 兄弟选择器 + pointer-events:none 死循环**:edit toggle 永远点不到,必须 JS + 400ms 延迟
+5. **`outerHTML` 捕获临时 UI 状态**:edit 模式导出后永远停在 edit 模式,必须先剥状态再 capture(我们 v5.2.4 修过的坑,留档警示)
+6. **nav dots 无限叠加**:`setupNavDots()` 第一行必须 `innerHTML = ''` 清空
+
+### 🔁 改进
+
+- **SKILL.md description**:加入"培训片五段循环"、"SVG 数据 Dashboard"、"SVG icon 库"、"Anti AI-slop 反清单"、"CSS Gotchas" 关键词,让 Cowork 和 Claude Code 触发更精准
+- **tags**:新增 `svg-charts` / `dashboard` / `training-cycle` / `anti-ai-slop` 四个标签
+- **scripts/ 介绍**:从"PDF 导出和合规自检"扩展到"PDF 和 PPTX 导出 + 合规自检"
+
+### 📂 文件变更
+
+```
+references/layouts.md      +500 行(培训五段循环 + 数据 Dashboard 版式库)
+references/checklist.md    +60  行(Content density 表 + 培训片张数表)
+references/design-system.md +180 行(Anti AI-slop 反清单 + 6 个 CSS Gotcha)
+references/icons.md        新建 320 行(24 个 SVG icon 配方 + 配色规则)
+SKILL.md                   version 5.4.0 → 5.5.0 + description + tags
+```
+
+### ⚠️ 不做的(决策记录)
+
+- **不**借 frontend-slides 的 12 个 preset 全套 — 我们锁定 McKinsey 风就是辨识度,多 preset 会稀释
+- **不**借 frontend-slides 的"先生成 3 个 preview HTML 让用户挑"流程 — 多走一轮 token 收益不明
+- **不**借 slide-deck-generator 的 React + Vite + Framer Motion 整套栈 — 和我们 zero-dependency 单 HTML 路线相反
+- **不**借 marp-slides 的 MARP markdown 语法 — 另一条赛道
+- **暂缓**:PPTX → HTML 反向转换(`extract-pptx.py`)、Vercel 一键部署(`deploy.sh`)—— P2 级,等真有需求再做
+
+### 🎯 用法变化(对老用户)
+
+**Mode A / B 用户**:
+- 培训片现在可以让 AI 先按"五段循环"排骨架,再填内容
+- 数据页可以让 AI 直接出 dashboard 版式(以前只能出 metric-row + 卡片)
+
+**Mode C 用户**:
+- 改 PPT 时先查 `checklist.md` 的 Content density 表,机械化判断是否要拆页
+- 信息密集的旧 PPT,可以让 AI 用 dashboard 版式重排
+
+**全员**:
+- 出图时图标统一查 `icons.md`,不再让 AI 瞎画
+- 配色 / 字体 / 元素 / 文案有疑虑,先查 `design-system.md` 的 Anti AI-slop 反清单
+
+### 🔬 验证方式
+
+- [x] SKILL.md frontmatter 通过 YAML 解析
+- [x] 4 个 references 文件无 broken link
+- [x] icons.md 里的 SVG 代码可直接 copy 进浏览器渲染
+- [x] checklist.md Content density 表的版式名与 layouts.md 一致(没有错位)
+- [ ] **下一次实际做 PPT 时,用一次新章节确认顺手**
+
+---
+
 ## v5.4.1 · 2026-05-12(hotfix · PPTX 视觉问题修复)
 
 **主线**:v5.4.0 实测后饶秋发现 3 个问题,这次集中修。

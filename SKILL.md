@@ -3,7 +3,7 @@ name: Rao-HTML-to-PPT
 zh_name: "饶秋老师 HTML PPT 标准生成器"
 en_name: "Rao HTML to PPT"
 emoji: "🎯"
-description: 基于饶秋老师 McKinsey 风 HTML PPT 标准模板(v5.3),生成结构清晰、克制专业、带麦肯锡咨询气质的培训课件、汇报演讲、提案材料。**支持三种模式**:Mode A 新建一份 PPT / Mode B 把 Markdown 大纲转成 PPT / Mode C 改/优化/扩展已有 HTML PPT。当用户要求"做 PPT""做培训课件""做汇报""做客户提案""把大纲变成 PPT""改一下这页""加一页讲 XX""更新这份课件的数据""按我的风格做"时,必须使用此技能。也支持 PDF 导出和一键自检脚本。包括但不限于:Cowork 中上传课程大纲生成 HTML PPT / 给老课件改局部 / 客户提案 / AIGC 培训交付。即使用户没明说"麦肯锡风",只要场景是企业培训 / 咨询汇报 / 商业提案 / 个人分享 / 演讲材料,都应触发。配套:Brand Style 卡片自动加载(客户色 + 字体 + Tone + 合规约束一张表)、Ghost Deck Test 标题串读自检、Citation 强制(借用数据必有来源)、双主题切换(纸/墨 v5.1)、Inline Editing(浏览器内 E 键编辑 v5.2)、scripts/ 提供 PDF 导出和合规自检。
+description: 基于饶秋老师 McKinsey 风 HTML PPT 标准模板(v5.5),生成结构清晰、克制专业、带麦肯锡咨询气质的培训课件、汇报演讲、提案材料。**支持三种模式**:Mode A 新建一份 PPT / Mode B 把 Markdown 大纲转成 PPT / Mode C 改/优化/扩展已有 HTML PPT。当用户要求"做 PPT""做培训课件""做汇报""做客户提案""把大纲变成 PPT""改一下这页""加一页讲 XX""更新这份课件的数据""按我的风格做"时,必须使用此技能。也支持 PDF 导出、PPTX 导出和一键自检脚本。包括但不限于:Cowork 中上传课程大纲生成 HTML PPT / 给老课件改局部 / 客户提案 / AIGC 培训交付。即使用户没明说"麦肯锡风",只要场景是企业培训 / 咨询汇报 / 商业提案 / 个人分享 / 演讲材料,都应触发。配套:Brand Style 卡片自动加载(客户色 + 字体 + Tone + 合规约束一张表)、Ghost Deck Test 标题串读自检、Citation 强制(借用数据必有来源)、双主题切换(纸/墨 v5.1)、Inline Editing(浏览器内 E 键编辑 v5.2)、培训片五段循环大纲模板(v5.5)、SVG 数据 Dashboard 版式库(donut/gauge/sparkline/metric card/line chart · v5.5)、SVG icon 库(24 个基础图标统一规范 · v5.5)、Anti AI-slop 反清单(v5.5)、CSS Gotchas 踩坑警示档(v5.5)、scripts/ 提供 PDF 和 PPTX 导出 + 合规自检。
 category: slides
 scenario: training-presentation
 surface: ["keynote-live", "pdf-archive", "pptx-editable", "html-share", "wechat-article"]
@@ -11,8 +11,8 @@ design_system: mckinsey-paper-dark
 aspect_hint: "16:9"
 modes: ["A-new", "B-outline-to-deck", "C-enhance-existing"]
 themes: ["mckinsey-blue", "paper-ink", "dark-botanical"]
-version: "5.4.0"
-tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit"]
+version: "5.5.0"
+tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit", "svg-charts", "dashboard", "training-cycle", "anti-ai-slop"]
 repo: "https://github.com/raoqiu29-bot/Rao-HTML-to-PPT"
 license: MIT
 ---

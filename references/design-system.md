@@ -468,3 +468,197 @@ template.html 自带的功能:
 - 打印:Ctrl+P 直接生成 PDF,自动隐藏控件
 
 修改 HTML 内容时确保以上功能不受影响。
+
+---
+
+# Anti AI-Slop 反清单(v5.5 新增 · 借鉴 frontend-slides + slide-deck-generator)
+
+> **"AI 套版"是这波 AI PPT 工具的通病。我们风格本来就反这个,这一节把它白纸黑字写下来,生成时严格执行。**
+
+"AI 套版"长什么样:紫色到蓝色渐变背景 + Inter 字体大标题 + 全部居中布局 + 卡片带玻璃拟态 + 每个元素都飞进来 + 几何插画。一眼就知道是 AI 出的。
+
+下面这些**绝对不要在饶秋老师的 PPT 里出现**。
+
+## 禁用字体(已在前文"DO NOT USE"列过,这里再强调)
+
+| 字体 | 为什么禁 |
+|---|---|
+| Inter | AI 默认款,所有 AI 工具都用,**最显套版** |
+| Roboto | 同上,Material Design 烂大街 |
+| Arial / Helvetica | 系统字体懒,没设计感 |
+| 微软雅黑(任何位置) | Windows 风,违反"程前式干净简单" |
+| Songti / Playfair / Lobster / Pacifico | 装饰过度,违反"克制" |
+| Comic Sans / 任何手写体 | 这条不解释 |
+
+## 禁用配色
+
+| 颜色 / 配色 | 为什么禁 |
+|---|---|
+| `#6366f1`(generic indigo) | AI 默认主色,一眼套版 |
+| `#8b5cf6` → `#ec4899` 紫色渐变 | "AI 美感"的标志色,白底紫紫的最难看 |
+| 紫色 / 粉色任何在白底上的渐变 | 同上 |
+| 彩虹色 pastel rainbow 拼接 | 缺乏视觉重音,看不出主次 |
+| **黑底荧光绿 / 深色霓虹粉紫** | 不属于咨询气质 |
+| 任何"AI 显眼包"撞色:#FF6B6B + #4ECDC4 + #FFE66D 三联 | 童趣感,违反"理性 > 感性" |
+
+## 禁用版式
+
+| 模式 | 为什么禁 |
+|---|---|
+| **全屏居中堆栈**(所有元素垂直居中、文字也居中) | 违反 F-pattern,违反我们"标题靠左上"的麦肯锡风规则 |
+| 所有页都长得一模一样(同样卡片网格) | 没节奏,违反"重音页 + 弱拍"的节奏铁律 |
+| Hero 区做成"标题 + 副标题 + 两个按钮 + 一张插画"的官网首屏 | 这是 SaaS 落地页,不是 PPT |
+| 每张卡片都加圆角 + 阴影 + 渐变背景 | "三件套"叠加 = AI 套版 |
+| 大标题 + 三列图标卡片(`{icon, title, desc}` × 3) | 烂大街的"feature grid" |
+
+## 禁用装饰元素
+
+| 元素 | 为什么禁 |
+|---|---|
+| **写实风插画 / 卡通 IP 形象** | 违反"克制",降低专业感 |
+| **Glassmorphism 玻璃拟态**(模糊 + 半透明 + 描边) | AI 时代被滥用的视觉糖 |
+| **Neumorphism 拟物**(凸起 / 凹陷阴影) | 同上,且对比度差,可访问性低 |
+| **无目的的 drop shadow**(每个元素都飘) | 我们 v5 规定"零大阴影" |
+| **Mesh gradient 流体彩色背景** | 我们只允许 FBM 噪波 shader,且只在 AIGC 培训场景 |
+| **Geometric blob / 波浪 SVG 装饰** | 装饰即噪音,留白即审美 |
+| **每个元素都飞进来 / 弹一下 / 旋转** | "动画即廉价" — 一份 deck 全程动画 = 暴露做不出静态美感 |
+
+## 禁用文案模式
+
+| 模式 | 为什么禁 |
+|---|---|
+| "赋能 / 抓手 / 底层逻辑 / 降维打击 / 闭环 / 生态 / 链路 / 对齐 / 颗粒度" | 饶秋全景画像 2.5 节明确禁用,标题里出现就违规 |
+| 标题用感叹号 / "震惊!" / "重磅!" | 段子手 / 爆款金句句式,违反"安静的深度" |
+| "很多 / 大量 / 海量 / 极多" | 不具体,违反"数字要具体" |
+| Lorem ipsum / "此处填写内容" / "Your content here" | 残留占位符 = 没做完就交付 |
+| 标题超过 18 字 | 标题即结论,18 字讲不完就是没想清楚 |
+
+## 怎么判断一份 deck 有没有"AI 味"
+
+打开浏览器,**眯起眼睛**(让细节模糊),问自己:
+- 是不是每页都长得很像?(没节奏 → 套版)
+- 主色是不是紫色 / 紫蓝渐变?(AI 默认款)
+- 字体是不是 Inter / Roboto?(AI 默认款)
+- 是不是有"图标 + 标题 + 一句话"的卡片网格在每张片?(AI feature grid)
+- 每个元素是不是都有阴影 + 圆角 + 渐变?(三件套套版)
+
+**任意一条命中,就要重做。**
+
+---
+
+# CSS Gotchas(v5.5 新增 · 借鉴 frontend-slides)
+
+## 1. 不能在 CSS 函数前面直接加负号
+
+```css
+/* ❌ 错 · 浏览器静默忽略,没有控制台报错 */
+margin-left: -clamp(1rem, 2vw, 2rem);
+right: -min(10vw, 100px);
+top: -max(2rem, 4vh);
+
+/* ✅ 对 · 用 calc(-1 * ...) 包一层 */
+margin-left: calc(-1 * clamp(1rem, 2vw, 2rem));
+right: calc(-1 * min(10vw, 100px));
+top: calc(-1 * max(2rem, 4vh));
+```
+
+**踩坑现象**:写完看页面,元素位置完全没变,但 F12 一看 CSS 规则**没标红**,就像它真的生效了。其实整条声明被浏览器**静默丢弃**。
+
+**为什么**:CSS 语法不允许函数名前直接出现 `-`。整条声明被判定为非法,丢弃。`calc()` 内部的乘以 `-1` 才是合法的取反方式。
+
+## 2. clamp() 的三个值要单调
+
+```css
+/* ❌ 错 · max < min,clamp 退化为常量 */
+font-size: clamp(2rem, 1.5vw, 1rem);
+
+/* ✅ 对 · min ≤ preferred(在最小视口的实际值) ≤ max */
+font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+```
+
+**怎么验**:在最小目标视口(我们是 1280×720)算 `1.4vw = 17.9px`。这个值要落在 `[0.9rem, 1.3rem]` = `[14.4px, 20.8px]` 区间内。落在区间内 = clamp 在不同视口下真的会变。
+
+## 3. `vh` 在 iPad / iPhone Safari 会被工具栏吞掉
+
+```css
+/* ❌ 单用 vh 在 iOS Safari 工具栏出现时会被截掉一截 */
+.slide { height: 100vh; }
+
+/* ✅ 双行写法,新浏览器走 dvh,老浏览器降级 vh */
+.slide {
+  height: 100vh;
+  height: 100dvh;  /* dynamic viewport height,Safari 15.4+ */
+}
+```
+
+**踩坑现象**:iPad 横屏放 PPT,内容下方少一截,刚好是 Safari 底栏的高度。
+
+## 4. 别在 contenteditable 容器外用 `~` 兄弟选择器控制 hover 显隐
+
+```css
+/* ❌ 错 · pointer-events: none 会断 hover 链 */
+.edit-hotzone:hover ~ .edit-toggle {
+  opacity: 1;
+}
+.edit-toggle {
+  pointer-events: none;  /* 这一行让 hover 链断裂 */
+}
+```
+
+**踩坑现象**:鼠标从 hotzone 移向 toggle 按钮的过程中,toggle 闪一下就消失了,没法点。
+
+**根因**:用户 hover hotzone → toggle 显示 → 鼠标向 toggle 移动 → 离开 hotzone → toggle 因 hover 消失 → 但 toggle 因 `pointer-events: none` 又不接收 hover → 永远点不到。
+
+**做法**:用 JS 监听 `mouseenter` / `mouseleave`,加 400ms 延迟 timeout 给"鼠标飞跃区域"留缓冲。完整实现见 template.html 里 `edit-toggle` 相关代码,这一节是为了告诉以后改这块的人**别想用纯 CSS 重写**。
+
+## 5. `document.documentElement.outerHTML` 会捕获临时的 UI 状态
+
+**踩坑现象**:edit 模式下按 Ctrl+S 导出 HTML,导出的文件打开后**永远停在 edit 模式**,每个文本都有虚线框,左上角有 ✏️ 按钮,顶部有 edit banner。
+
+**根因**:导出时 DOM 里:
+- `body` 有 `.edit-active` class
+- 每个文本元素有 `contenteditable="true"`
+- toggle 按钮有 `.show` / `.active` class
+- banner 有 `.active` class
+
+这些临时 UI 状态被一并捕获进导出文件。
+
+**做法**:`exportFile()` 必须先剥状态、再 capture、再恢复状态。模式:
+
+```javascript
+exportFile() {
+  // 1. 剥
+  const editables = Array.from(document.querySelectorAll('[contenteditable]'));
+  editables.forEach(el => el.removeAttribute('contenteditable'));
+  document.body.classList.remove('edit-active');
+  document.querySelector('.edit-toggle')?.classList.remove('show', 'active');
+  document.querySelector('.edit-banner')?.classList.remove('show', 'active');
+
+  // 2. capture
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+  // 3. 恢复(用户还在编辑,不能断)
+  document.body.classList.add('edit-active');
+  editables.forEach(el => el.setAttribute('contenteditable', 'true'));
+  document.querySelector('.edit-toggle')?.classList.add('active');
+  document.querySelector('.edit-banner')?.classList.add('active');
+
+  // 4. 触发下载
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'presentation.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+```
+
+**这是 v5.2.4 已经修过的坑,这里留档警示后面改这块的人不要走回头路。**
+
+## 6. nav dots 在重复 capture HTML 时会无限叠加
+
+**踩坑现象**:用户在浏览器里改了内容,Ctrl+S 导出,再次打开导出文件,**底部圆点变多了一倍**。再改再导出,再多一倍。
+
+**根因**:JS 启动时 `setupNavDots()` 把 dots 直接 `appendChild` 进 `.nav-dots` 容器。但 capture 出来的 HTML 已经包含上一轮生成的 dots,新一轮启动又追加一遍。
+
+**做法**:`setupNavDots()` 第一行必须 `this.navDotsContainer.innerHTML = '';` 清空,然后再追加。任何"启动时根据数据填充 DOM"的函数都遵守此规则。
