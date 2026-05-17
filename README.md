@@ -1,4 +1,4 @@
-# Rao-HTML-PPT-Builder
+# Rao-HTML-to-PPT
 
 > 一个为 **Claude Code / Claude Cowork** 设计的 HTML PPT 生成 skill。基于麦肯锡咨询视觉语言 + 全套工程纪律,**12 种版式 + 双主题切换 + 自检脚本**。专为企业培训、客户提案、思想分享等场景设计。
 
@@ -73,19 +73,19 @@
 ### 推荐方式:克隆到 `~/.claude/skills/`
 
 ```bash
-git clone https://github.com/raoqiu29-bot/Rao-HTML-PPT-Builder.git ~/.claude/skills/Rao-HTML-PPT-Builder
+git clone https://github.com/raoqiu29-bot/Rao-HTML-to-PPT.git ~/.claude/skills/Rao-HTML-to-PPT
 ```
 
 或者克隆到任意位置,然后 symlink:
 ```bash
-git clone https://github.com/raoqiu29-bot/Rao-HTML-PPT-Builder.git /your/preferred/path
-ln -s /your/preferred/path ~/.claude/skills/Rao-HTML-PPT-Builder
+git clone https://github.com/raoqiu29-bot/Rao-HTML-to-PPT.git /your/preferred/path
+ln -s /your/preferred/path ~/.claude/skills/Rao-HTML-to-PPT
 ```
 
 ### 验证安装
 
 打开 Claude Code 或 Cowork,在任意目录说:
-> "按 Rao-HTML-PPT-Builder 风格做一份 PPT 测试"
+> "按 Rao-HTML-to-PPT 风格做一份 PPT 测试"
 
 如果 AI 自动调用 skill(开始问 6 个澄清问题),说明装好了。
 
@@ -162,7 +162,7 @@ PPT 打开后:
 ## 文件结构
 
 ```
-Rao-HTML-PPT-Builder/
+Rao-HTML-to-PPT/
 ├── README.md                   ← 你正在看
 ├── LICENSE                     ← MIT
 ├── SKILL.md                    ← 主入口 · 工作流 + 决策规则

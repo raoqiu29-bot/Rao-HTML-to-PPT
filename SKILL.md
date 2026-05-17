@@ -1,5 +1,5 @@
 ---
-name: raoqiu-slide-builder
+name: Rao-HTML-to-PPT
 zh_name: "饶秋老师 HTML PPT 标准生成器"
 en_name: "Rao HTML PPT Builder"
 emoji: "🎯"
@@ -13,7 +13,7 @@ modes: ["A-new", "B-outline-to-deck", "C-enhance-existing"]
 themes: ["mckinsey-blue", "paper-ink", "dark-botanical"]
 version: "5.4.0"
 tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit"]
-repo: "https://github.com/raoqiu29-bot/Rao-HTML-PPT-Builder"
+repo: "https://github.com/raoqiu29-bot/Rao-HTML-to-PPT"
 license: MIT
 ---
 

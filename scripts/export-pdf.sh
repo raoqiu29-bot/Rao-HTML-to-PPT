@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# raoqiu-slide-builder · PDF 导出脚本(v5 升级)
+# Rao-HTML-to-PPT · PDF 导出脚本(v5 升级)
 # 借鉴 zarazhangrui/frontend-slides 的 export-pdf.sh
 #
 # 用法:
@@ -116,7 +116,7 @@ async function main() {
   // 找所有 .slide
   const slideCount = await page.evaluate(() => document.querySelectorAll('.slide').length);
   if (slideCount === 0) {
-    console.error('[错误] 没找到 .slide 元素,确认 HTML 是 raoqiu-slide-builder 生成的');
+    console.error('[错误] 没找到 .slide 元素,确认 HTML 是 Rao-HTML-to-PPT 生成的');
     await browser.close();
     server.close();
     process.exit(1);

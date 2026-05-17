@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# raoqiu-slide-builder · 一键自检脚本(v5 升级)
+# Rao-HTML-to-PPT · 一键自检脚本(v5 升级)
 # 借鉴 tmustier/clean-slides 的 pptx validate 思路
 #
 # 用法:

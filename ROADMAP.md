@@ -1,4 +1,4 @@
-# raoqiu-slide-builder · ROADMAP
+# Rao-HTML-to-PPT · ROADMAP
 
 > **这份文档是什么**:记录"已识别但暂时不做"的功能 — 不是被否决,是**饶秋说"以后可能想做"**(2026-05-11 PROPOSAL-v5 §4 决策 D1 全部保留)。
 >
@@ -71,7 +71,7 @@
 
 **什么时候可能想做**:
 - 饶秋以后做"非培训"内容时 — 比如做产品发布 / 个人作品集 / 婚礼请柬 / 课件 SaaS 化售卖
-- **那时考虑做一个"raoqiu-slide-builder-pro"独立 skill**,不在主 skill 里加(避免模糊主品牌)
+- **那时考虑做一个"Rao-HTML-to-PPT-pro"独立 skill**,不在主 skill 里加(避免模糊主品牌)
 
 **参考实现**:
 - 路径:`02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/frontend-slides/STYLE_PRESETS.md`
@@ -134,6 +134,6 @@
 
 ## 跨档案引用
 
-- 历史决策记录:[`99-归档-Archive/raoqiu-slide-builder-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md`](../../../99-归档-Archive/raoqiu-slide-builder-proposals/) §4
+- 历史决策记录:[`99-归档-Archive/Rao-HTML-to-PPT-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md`](../../../99-归档-Archive/Rao-HTML-to-PPT-proposals/) §4
 - 通读笔记(为什么这 5 条被识别为机会):[`02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/通读笔记-2026-05-11.md`](../../../02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/通读笔记-2026-05-11.md) §5
 - 已做的升级:[CHANGELOG.md](CHANGELOG.md)

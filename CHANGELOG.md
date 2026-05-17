@@ -1,4 +1,4 @@
-# CHANGELOG · raoqiu-slide-builder
+# CHANGELOG · Rao-HTML-to-PPT
 
 记录这个 skill 的版本变更。每次升级都按"做了什么 / 为什么 / 影响"三段记。
 
@@ -110,7 +110,7 @@
 
 ### 风险与回滚
 
-- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v5.3.0-2026-05-12-before-v5.4/`
+- 备份位置:`99-归档-Archive/Rao-HTML-to-PPT-v5.3.0-2026-05-12-before-v5.4/`
 - 回滚:`rm -rf <skill> && cp -R <备份> <skill>`
 - **不影响现有 v5.3 行为**:只是新增脚本,不删/改任何老文件
 - **首次跑会装 Playwright + PptxGenJS ≈ 200MB**(跟 export-pdf.sh 共享 Playwright,实际只增 PptxGenJS)
@@ -154,7 +154,7 @@
 
 ## v5.3.0 · 2026-05-12(借鉴 html-anything · 文档与元数据升级)
 
-**主线**:看了 [nexu-io/html-anything](https://github.com/nexu-io/html-anything)(2.6k stars Web app · 75 个 skill 模板 + 9 个 output surface),把它的 3 个核心设计理念**借鉴到 raoqiu-slide-builder**,作为 v5.3 文档与元数据升级。
+**主线**:看了 [nexu-io/html-anything](https://github.com/nexu-io/html-anything)(2.6k stars Web app · 75 个 skill 模板 + 9 个 output surface),把它的 3 个核心设计理念**借鉴到 Rao-HTML-to-PPT**,作为 v5.3 文档与元数据升级。
 
 **评审过程**:饶秋发了 URL → 我分析 → 列了 3 个值得借鉴 / 3 个不借鉴 → 饶秋同意"借鉴并升级 + 把 repo 加进他山之石"。
 
@@ -530,7 +530,7 @@ document.addEventListener('keydown', function(e) {
 
 ### 风险与回滚
 
-- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v5.1.0-2026-05-12-before-v5.2/`
+- 备份位置:`99-归档-Archive/Rao-HTML-to-PPT-v5.1.0-2026-05-12-before-v5.2/`
 - 回滚命令:`rm -rf <skill> && cp -R <备份> <skill>`
 - **向后兼容**:用户没启动编辑模式时 = 跟 v5.1 行为完全一致,不影响只看 PPT 的体验
 - **localStorage 隔离**:每个 PPT 用自己的 `location.pathname` 做 key,**不同 PPT 的编辑互不干扰**
@@ -611,7 +611,7 @@ document.addEventListener('keydown', function(e) {
 
 ### 风险与回滚
 
-- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v5.0.0-beta-2026-05-12-before-v5.1/`
+- 备份位置:`99-归档-Archive/Rao-HTML-to-PPT-v5.0.0-beta-2026-05-12-before-v5.1/`
 - 回滚命令:`rm -rf <skill> && cp -R <备份> <skill>`
 - **向后兼容**:旧 PPT(没 data-theme)依然显示 McKinsey 蓝,完全不破
 
@@ -636,7 +636,7 @@ document.addEventListener('keydown', function(e) {
 
 ## v5.0.0-beta · 2026-05-11
 
-**主线**:alpha 解决了"PPT 模板系统"层的 6 条核心改造,beta 解决"全链路工程化"层的 5 条增强 — 把 raoqiu-slide-builder 从"做一份 PPT"升级到"端到端工程化的 HTML PPT 工具"。
+**主线**:alpha 解决了"PPT 模板系统"层的 6 条核心改造,beta 解决"全链路工程化"层的 5 条增强 — 把 Rao-HTML-to-PPT 从"做一份 PPT"升级到"端到端工程化的 HTML PPT 工具"。
 
 **核心新能力**:
 - **Phase 0 检测模式**(新建 vs 大纲转换 vs 改老课件)— 不再默认"从零做"
@@ -710,7 +710,7 @@ document.addEventListener('keydown', function(e) {
 
 ### 风险与回滚
 
-- 备份位置(v4 完整快照):`99-归档-Archive/raoqiu-slide-builder-v4-2026-05-11-before-v5/`
+- 备份位置(v4 完整快照):`99-归档-Archive/Rao-HTML-to-PPT-v4-2026-05-11-before-v5/`
 - AskUserQuestion 兼容性:**未在所有平台实测**,SKILL.md 已写明"如果运行环境不支持就退回顺序对话"作为兜底
 - Brand Style 卡片机制对旧用户:**完全向下兼容**,旧"只填客户色 hex"工作流依然可用(选 C "用默认 + 客户色")
 
@@ -750,7 +750,7 @@ document.addEventListener('keydown', function(e) {
 
 **主线**:通读了 5 个同行 skill 源代码(详见 `02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/通读笔记-2026-05-11.md`)后启动的"全链路工程化"升级。alpha 包含 6 条必做改造,beta 留给 6 条推荐改造(后续做)。
 
-**评审过程**:写了 [PROPOSAL-v5(已归档)](../../../99-归档-Archive/raoqiu-slide-builder-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md),饶秋评审通过(A1 + B1 + C 全同意 + D1),先备份 v4 到 `99-归档-Archive/raoqiu-slide-builder-v4-2026-05-11-before-v5/`,再启动 alpha。
+**评审过程**:写了 [PROPOSAL-v5(已归档)](../../../99-归档-Archive/Rao-HTML-to-PPT-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md),饶秋评审通过(A1 + B1 + C 全同意 + D1),先备份 v4 到 `99-归档-Archive/Rao-HTML-to-PPT-v4-2026-05-11-before-v5/`,再启动 alpha。
 
 ### ✨ 新增
 
@@ -843,8 +843,8 @@ document.addEventListener('keydown', function(e) {
 
 ### 风险与回滚
 
-- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v4-2026-05-11-before-v5/`
-- 回滚命令:`rm -rf raoqiu-slide-builder && cp -R <备份位置> raoqiu-slide-builder`
+- 备份位置:`99-归档-Archive/Rao-HTML-to-PPT-v4-2026-05-11-before-v5/`
+- 回滚命令:`rm -rf Rao-HTML-to-PPT && cp -R <备份位置> Rao-HTML-to-PPT`
 - viewport fitting 宽容开关:`<body class="theme-mckinsey" data-strict-viewport="off">`(允许 slide 内滚动,给老课件过渡用)
 
 ### 内部统计
@@ -860,7 +860,7 @@ document.addEventListener('keydown', function(e) {
 
 ### 还没做的(留给 v5.0.0-beta)
 
-详见 [PROPOSAL-v5(已归档)](../../../99-归档-Archive/raoqiu-slide-builder-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md) §2 第二批:
+详见 [PROPOSAL-v5(已归档)](../../../99-归档-Archive/Rao-HTML-to-PPT-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md) §2 第二批:
 - Phase 0 检测模式 + Mode C 增强已有
 - Subagent Defend Choice
 - Brand Style 卡片机制

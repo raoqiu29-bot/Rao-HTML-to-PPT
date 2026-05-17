@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# raoqiu-slide-builder · HTML PPT → 可编辑 PPTX 导出脚本(v5.4)
+# Rao-HTML-to-PPT · HTML PPT → 可编辑 PPTX 导出脚本(v5.4)
 # 借鉴 PptxGenJS + Playwright 工业标准
 #
 # 用法:
 #   bash scripts/export-pptx.sh <input.html> [output.pptx] [--compact]
 #
 # 参数:
-#   input.html   - 要导出的 HTML PPT(必填,raoqiu-slide-builder v5.x 生成的)
+#   input.html   - 要导出的 HTML PPT(必填,Rao-HTML-to-PPT v5.x 生成的)
 #   output.pptx  - 输出 PPTX 路径(可选,默认放在 input.html 同目录)
 #   --compact    - 用 1280x720 替代 1920x1080(文件小 50-70%,适合邮件发送)
 #
@@ -125,7 +125,7 @@ async function main() {
   // 找所有 .slide
   const slideCount = await page.evaluate(() => document.querySelectorAll('.slide').length);
   if (slideCount === 0) {
-    console.error('[错误] 没找到 .slide 元素,确认 HTML 是 raoqiu-slide-builder 生成的');
+    console.error('[错误] 没找到 .slide 元素,确认 HTML 是 Rao-HTML-to-PPT 生成的');
     await browser.close();
     server.close();
     process.exit(1);
@@ -185,7 +185,7 @@ async function main() {
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = path.basename(outputPptx, '.pptx');
-  pptx.author = 'Rao-HTML-PPT-Builder v5.4';
+  pptx.author = 'Rao-HTML-to-PPT v5.4';
   pptx.company = 'raoqiu29-bot';
 
   for (let i = 0; i < screenshots.length; i++) {
