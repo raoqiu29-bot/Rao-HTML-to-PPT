@@ -8,6 +8,74 @@
 
 ---
 
+## v5.3.0 · 2026-05-12(借鉴 html-anything · 文档与元数据升级)
+
+**主线**:看了 [nexu-io/html-anything](https://github.com/nexu-io/html-anything)(2.6k stars Web app · 75 个 skill 模板 + 9 个 output surface),把它的 3 个核心设计理念**借鉴到 raoqiu-slide-builder**,作为 v5.3 文档与元数据升级。
+
+**评审过程**:饶秋发了 URL → 我分析 → 列了 3 个值得借鉴 / 3 个不借鉴 → 饶秋同意"借鉴并升级 + 把 repo 加进他山之石"。
+
+### ✨ 新增
+
+- **SKILL.md frontmatter 结构化字段**(借鉴 html-anything 的 SKILL.md 协议)
+  - 新增字段:`zh_name / en_name / emoji / category / scenario / surface / design_system / aspect_hint / modes / themes / version / tags / repo / license`
+  - **价值**:
+    - 给 AI 更精准的元数据(以后跨 skill 选择时有结构化信号)
+    - 给读 SKILL.md 的人(包括合作讲师 / 学员)清晰导航
+    - 跟开源 skill 生态对齐(html-anything / frontend-slides 等都用类似 frontmatter)
+  - **风险**:Claude skill loader 当前只识别 name + description,**其他字段被忽略不影响运行**。已验证(skill 重载后 description 正确显示 v5.3)。
+
+- **Surface 决策表**(SKILL.md Step -1 · 借鉴 html-anything 9 surface 概念)
+  - 4 种目标 surface:
+    - 🍎 **keynote-live**(现场演示 · 默认)
+    - 📄 **pdf-archive**(留档归档)
+    - 🌐 **html-share**(链接分享)
+    - 💬 **wechat-article**(公众号转写 → md2wechat)
+  - **价值**:同样内容,不同 surface 输出策略不同。先确认 surface 才能给对的输出(演示要双主题 + 动效,PDF 要静态 + 打印友好,链接要文件小)
+  - **触发判断**:给 AI 明确的关键词信号(PDF/留档 → pdf-archive,链接/远程 → html-share,公众号 → 转给 md2wechat)
+
+- **设计哲学正式沉淀**(README.md 新增 "设计哲学"章节)
+  - 引用 html-anything 的 **"Markdown is the draft. HTML is what humans read."**
+  - 5 条落地原则:单文件自包含 / 零依赖 / 跨平台兼容 / 现场就能改 / 多 surface 适配
+  - **价值**:给 GitHub 看到 README 的人**第一眼明白这个 skill 不是玩具,是生产工具**
+
+### 🔁 改进
+
+- **README.md** 加 "设计哲学" 章节(8 行,放在 "解决什么问题"之前)
+- **frontmatter description** 加上"v5.1 双主题 / v5.2 Inline Editing"等关键能力,让 AI 触发更准
+
+### 🛠️ 真实踩坑修复
+
+无新增(v5.3 是元数据/文档升级,不动代码)。
+
+### ⛔ 弃用
+
+无。
+
+### 不借鉴的 3 个(避免过度工程化 · 记录决策)
+
+| 不借鉴 | 原因 |
+|---|---|
+| **Next.js Web app 形态** | 我们 skill 形态更轻、更自然集成 Claude / Cowork,Web app 需要服务器 / 启动 / 维护,饶秋不需要 |
+| **8 个 agent 支持(Claude/Cursor/Codex 等)** | 我们 Claude 生态特化,跨 agent 是 html-anything 产品定位,跟我们无关 |
+| **75 个 skill 模块化** | 我们 12 版式打包在 1 个 skill,加载快、AI 选择简单。75 个分散 skill 适合"通用平台",不适合"个人特化 skill" |
+
+### 内部统计
+
+| 文件 | v5.2.4 | v5.3 | 变化 |
+|---|---|---|---|
+| SKILL.md | 25 KB | 28 KB | +3 KB(frontmatter 字段 + Step -1 Surface 表) |
+| README.md | 8.3 KB | 9 KB | +0.7 KB(设计哲学章节) |
+| 其他文件 | 不变 | 不变 | — |
+| **下载到他山之石**:html-anything 28 MB · 1 个完整 repo + README + 75 skill 模板源码 | — | 全新 | 给未来调研 |
+
+### 测试状态
+
+- ✅ Claude 重载 skill 后 description 显示 v5.3(frontmatter 新字段被忽略不影响加载)
+- ✅ SKILL.md / README.md 文档完整
+- ⚠️ Surface 决策表对 AI 行为的实际影响**未在真实 PPT 生成时验证**(下次饶秋让 AI 做新 PPT 时观察)
+
+---
+
 ## v5.2.4 · 2026-05-12(预防性 patch · Chrome 缓存)
 
 **主线**:不是修 bug,是**预防**未来 Chrome 缓存 / BFCache 问题。

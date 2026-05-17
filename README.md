@@ -6,6 +6,19 @@
 
 ---
 
+## 设计哲学(v5.3 借鉴 html-anything · 沉淀为正式原则)
+
+> **"Markdown is the draft. HTML is what humans read."**
+> — [nexu-io/html-anything](https://github.com/nexu-io/html-anything)
+
+每次 skill 生成的产物**必须是 ship-ready 的成品**,不是"我等会再美化"的草稿。具体落地:
+
+- **单文件 HTML 自包含** · 字体 / CSS / JS / 主题切换 / 编辑能力全 inline,不依赖外部资源
+- **零依赖运行** · 双击就开,不需要 npm / build / server
+- **跨平台兼容** · macOS Safari / Chrome 隐身 / Firefox 都能开,PDF 永远稳
+- **现场就能改** · E 键编辑 + Ctrl+S 保存 + localStorage 延续,临场调整不用回源码
+- **多 surface 适配** · keynote 演示 / PDF 归档 / 链接分享 / 公众号文章,4 种 surface 各自优化(详见 SKILL.md `Step -1`)
+
 ## 这个 skill 解决什么问题
 
 做 PPT 时常见痛点:
