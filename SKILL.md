@@ -6,12 +6,12 @@ emoji: "🎯"
 description: 基于饶秋老师 McKinsey 风 HTML PPT 标准模板(v5.3),生成结构清晰、克制专业、带麦肯锡咨询气质的培训课件、汇报演讲、提案材料。**支持三种模式**:Mode A 新建一份 PPT / Mode B 把 Markdown 大纲转成 PPT / Mode C 改/优化/扩展已有 HTML PPT。当用户要求"做 PPT""做培训课件""做汇报""做客户提案""把大纲变成 PPT""改一下这页""加一页讲 XX""更新这份课件的数据""按我的风格做"时,必须使用此技能。也支持 PDF 导出和一键自检脚本。包括但不限于:Cowork 中上传课程大纲生成 HTML PPT / 给老课件改局部 / 客户提案 / AIGC 培训交付。即使用户没明说"麦肯锡风",只要场景是企业培训 / 咨询汇报 / 商业提案 / 个人分享 / 演讲材料,都应触发。配套:Brand Style 卡片自动加载(客户色 + 字体 + Tone + 合规约束一张表)、Ghost Deck Test 标题串读自检、Citation 强制(借用数据必有来源)、双主题切换(纸/墨 v5.1)、Inline Editing(浏览器内 E 键编辑 v5.2)、scripts/ 提供 PDF 导出和合规自检。
 category: slides
 scenario: training-presentation
-surface: ["keynote-live", "pdf-archive", "html-share", "wechat-article"]
+surface: ["keynote-live", "pdf-archive", "pptx-editable", "html-share", "wechat-article"]
 design_system: mckinsey-paper-dark
 aspect_hint: "16:9"
 modes: ["A-new", "B-outline-to-deck", "C-enhance-existing"]
 themes: ["mckinsey-blue", "paper-ink", "dark-botanical"]
-version: "5.3.0"
+version: "5.4.0"
 tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit"]
 repo: "https://github.com/raoqiu29-bot/Rao-HTML-PPT-Builder"
 license: MIT
@@ -53,12 +53,14 @@ license: MIT
 |---|---|---|
 | 🍎 **keynote-live**(现场演示 · **默认**) | 培训现场投影 / 内部分享 | Safari 优先 / 双主题切换开 / 全屏 F 键 / E 键现场编辑 |
 | 📄 **pdf-archive**(留档归档) | 客户提案 PDF / 学员资料 | 跑 `scripts/export-pdf.sh` / 关 WebGL 背景节省渲染 / 1920×1080 标清 |
+| 📊 **pptx-editable**(PowerPoint 客户用 · v5.4 新)| 客户惯用 PowerPoint/Keynote / 团队协作改稿 | 跑 `scripts/export-pptx.sh` / 每页高清图打包 .pptx(视觉 100% 保真但不能改字)|
 | 🌐 **html-share**(链接分享) | 远程培训 / 学员异步学习 | 保留单文件 HTML 自包含 / 加 viewer notes 元信息(可选)|
 | 💬 **wechat-article**(公众号转写) | PPT 内容转公众号文章 | **不直接做** → 引用 md2wechat skill 处理 |
 
 **判断**:
 - 用户没明说 → **默认 keynote-live**(培训现场最常见)
-- 用户提"PDF""留档""发给客户" → **pdf-archive**
+- 用户提"PDF""留档""归档" → **pdf-archive**
+- 用户提"PPT 给客户改""PowerPoint""Keynote""可编辑""客户团队用" → **pptx-editable**(v5.4 新)
 - 用户提"链接""学员看""异步""远程" → **html-share**
 - 用户提"公众号""转文章""发推文" → **wechat-article**(转给 md2wechat skill)
 

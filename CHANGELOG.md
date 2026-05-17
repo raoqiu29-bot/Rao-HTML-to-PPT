@@ -8,6 +8,92 @@
 
 ---
 
+## v5.4.0 · 2026-05-12(PPTX 导出能力 · alpha 图片版)
+
+**主线**:客户场景里有人**习惯用 PowerPoint / Keynote 改稿**,饶秋之前只能给 HTML 或 PDF — 给不出可编辑 .pptx。v5.4 加 `scripts/export-pptx.sh`,基于 Playwright 截图 + PptxGenJS 打包,**一键 HTML PPT → .pptx**。
+
+**触发场景**:饶秋原话"确实有需要给别人导出 PPTX"。客户团队不会装 Chrome 看 HTML / 不会用 Cmd+P 导 PDF,**最熟的就是 PowerPoint 双击打开 .pptx**。
+
+**评审过程**:看完 html-to-pptx 赛道 4 个 repo(dom-to-pptx / PptxGenJS / abdelkrimkr/html2pptx / SoorajVp/html-to-pptx),决定:
+- **alpha 走"图片版" 路线**(Playwright 截图 + PptxGenJS 打包)— 100% 视觉保真,工程量小
+- **beta 走"真可编辑"路线**(dom-to-pptx 解析 HTML → PPTX 真元素)— 工程量大 4-6h,等真有"客户要改文字"需求再做
+
+### ✨ 新增
+
+- **`scripts/export-pptx.sh`**(主脚本 · 8.6K · 借鉴 export-pdf.sh 同款架构)
+  - Playwright headless Chromium 加载 HTML PPT
+  - 内嵌 HTTP server 加载,Google Fonts CDN + 相对路径图片正常工作
+  - **自动隐藏控件 + 关掉编辑模式 + 清掉 contenteditable**(避免截图带按钮 / 蓝色虚线边框)
+  - 逐页截图 1920×1080 (deviceScaleFactor: 2 = 2x DPI,Retina 屏不糊)
+  - PptxGenJS 创建 LAYOUT_WIDE (16:9) .pptx,每页嵌全屏 PNG
+  - PPTX 元数据:title / author / company 自动填
+  - 支持 `--compact` 参数(1280×720,文件小 50-70%)
+  - macOS 自动 `open` PPTX(默认 Keynote 打开)
+
+- **SKILL.md Surface 决策表加第 5 项 `pptx-editable`**
+  - 触发关键词:"PPT 给客户改""PowerPoint""Keynote""可编辑""客户团队用"
+  - 输出策略:跑 `scripts/export-pptx.sh`
+  - 限制说明:每页是高清图片,**不能改文字**(beta 版做真可编辑)
+
+- **SKILL.md frontmatter `surface` 数组加 `pptx-editable`**
+- **SKILL.md frontmatter `version` 升级到 5.4.0**
+
+### 🔁 改进
+
+- 无(v5.4 是新能力,不动现有 v5.3 行为)
+
+### 🛠️ 真实踩坑修复
+
+无新增。
+
+### ⛔ 弃用
+
+无。
+
+### 风险与回滚
+
+- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v5.3.0-2026-05-12-before-v5.4/`
+- 回滚:`rm -rf <skill> && cp -R <备份> <skill>`
+- **不影响现有 v5.3 行为**:只是新增脚本,不删/改任何老文件
+- **首次跑会装 Playwright + PptxGenJS ≈ 200MB**(跟 export-pdf.sh 共享 Playwright,实际只增 PptxGenJS)
+
+### 内部统计
+
+| 文件 | v5.3 | v5.4 | 变化 |
+|---|---|---|---|
+| SKILL.md | 28 KB | 28 KB | 微调(+ pptx surface 行 / frontmatter 字段)|
+| **scripts/export-pptx.sh** | 不存在 | **8.6 KB** | **全新** |
+| 其他文件 | 不变 | 不变 | — |
+
+### 实测状态
+
+- ⏳ 待实测(下一步:跑 `export-pptx.sh` 在 AI 应用基础课 PPT 上,生成 .pptx 给饶秋验证)
+
+### 技术路线记录(给以后参考)
+
+**alpha 选 Playwright + PptxGenJS 的理由**:
+- 工程量小:复用现有 export-pdf.sh 的 Playwright 启动 + HTTP server + 隐藏控件逻辑
+- 视觉 100% 保真:截图是浏览器真实渲染,WebGL 背景 / 衬线字体 / 双主题 / 装饰圆 全部保留
+- 兼容性最广:PowerPoint / Keynote / WPS / Google Slides 任何 .pptx 工具都能打开
+
+**alpha 不选 dom-to-pptx 的理由**:
+- 需要在浏览器里跑 JS 调用(架构跟 export-pdf.sh 不一致)
+- "可编辑"实际意义有限(饶秋客户主要是"看 + 嵌入到自己 PPT",不是大改文字)
+- 复杂度高,样式可能丢
+
+**beta 候选**(等真有需求再做):
+- 用 dom-to-pptx 把 HTML 解析成 PPTX 真元素(text box / shape / image)
+- 客户能改文字 / 换图 / 调位置
+- 工程量 4-6h,要测每个版式的转换效果
+
+### 借鉴来源
+
+- [gitbrent/PptxGenJS](https://github.com/gitbrent/PptxGenJS) MIT 协议 · 直接 npm 装来用(`pptxgenjs` 包)
+- 学习它的 LAYOUT_WIDE 配置 + addImage data URI 用法
+- Playwright 截图链路复用我们自己的 export-pdf.sh
+
+---
+
 ## v5.3.0 · 2026-05-12(借鉴 html-anything · 文档与元数据升级)
 
 **主线**:看了 [nexu-io/html-anything](https://github.com/nexu-io/html-anything)(2.6k stars Web app · 75 个 skill 模板 + 9 个 output surface),把它的 3 个核心设计理念**借鉴到 raoqiu-slide-builder**,作为 v5.3 文档与元数据升级。
