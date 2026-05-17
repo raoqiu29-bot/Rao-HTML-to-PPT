@@ -8,6 +8,103 @@
 
 ---
 
+## v5.2.0 · 2026-05-12
+
+**主线**:解决用户实际痛点 — "做完 HTML PPT 后没办法直接修改内容,要回 VS Code 翻源码改,太麻烦"。沉淀 inline editing 能力到模板,**右上角"编辑 · E"按钮 / E 键快捷键**,点任意文字直接改 + Ctrl+S 保存到 localStorage。
+
+**触发场景**:饶秋发现做完 v5.1 课件后,改一个字也要打开源码定位 `<section>`。要求像 Keynote / PowerPoint 那样所见即所得。
+
+**评审过程**:GitHub 调研了 4 个 HTML 编辑器(archlizheng/frontend-slides-editable 176 stars · sonnyp/sliders 1 star · GeorgioWan/Oi 已死 · slides.com 商业 SaaS),最匹配的 frontend-slides-editable 要求特定 DOM 结构(我们 v5.1 不兼容)。决策:**借鉴它的 contenteditable + localStorage 机制,沉淀到 v5.2 模板**(方向 A),而不是装第三方工具(方向 B)。
+
+### ✨ 新增
+
+- **Inline Editing 内置**(template.html 加 ~180 行 CSS + ~150 行 JS)
+  - 右上角"**编辑 · E**"按钮(在"纸 · 墨"按钮之前)
+  - **E 键快捷键**启动 / 退出(跟 T/M/O/F 同款键位风格)
+  - 编辑模式下,内容文字显示彩色虚线边框:
+    - McKinsey 蓝默认 → 蓝色边框
+    - Paper 主题 → 红色边框(`#c41e3a`)
+    - Dark 主题 → 金色边框(`#d4a574`)
+  - hover 加深 / focus 显示实线 + 浅色背景
+  - 浮动指示条:"编辑模式 · 点文字直接改 · Ctrl+S 保存 · E 退出"(脉冲点点动画)
+  - 已保存 toast:"✓ 已保存到本地"
+
+- **可编辑元素范围**(允许动 · 30+ 选择器):
+  - 标题:`cover h1` / `chapter h1` / `ending h1` / `page-title` / `page-subtitle`
+  - 卡片:`card h3` / `card p` / `card-num`
+  - 数据:`metric .v` / `metric .l` / `big-number .v` / `big-number .lead`
+  - 引用:`big-quote .quote` / `insight-body`
+  - 流程:`process-flow .step h4/p` / `matrix-2x2 .quadrant`
+  - 等等
+
+- **保护范围**(不可编辑 · 避免误改):
+  - 控件 UI(ctrl-bar / nav-arrows / page-num / edit-banner / save-toast)
+  - page-meta(模块标签 + 页码 chrome,这是结构 metadata)
+  - 装饰元素(章节扉页 deco-num / hero 发光圆 / FBM 背景)
+
+- **localStorage 持久化**(`raoqiu-deck-html-edit-<path>` key):
+  - Ctrl+S / Cmd+S 触发保存(整个 stage 区域的 HTML)
+  - 自动剥离 contenteditable / spellcheck 属性后存
+  - 加载时自动恢复(刷新 / 重开浏览器延续)
+  - 加载时自动剥离编辑状态(避免 contenteditable 串到非编辑模式)
+
+- **导出 + 恢复 API**(暴露到 `window.raoqiuEdit`):
+  - `window.raoqiuEdit.export()` → 下载干净的修改版 HTML
+  - `window.raoqiuEdit.reset()` → 清 localStorage,恢复出厂内容(带 confirm)
+  - `window.raoqiuEdit.enter()` / `.exit()` / `.save()` 也对外暴露
+
+- **键盘快捷键扩展**(`E` 加入模板交互列表):
+  - 现在:M(大纲)/ F(全屏)/ O(概览)/ **T(主题)**/ **E(编辑)** / Cmd+/-(缩放)/ Ctrl+S(保存编辑)/ Esc(退出编辑)
+  - SKILL.md 第 7 条"不动模板的功能"已更新
+
+### 🔁 改进
+
+- **SKILL.md 加原则 7.5 · Inline Editing 内置**:完整说明怎么用 + 可编辑/保护范围 + 导出 API + 致敬来源
+- **edit-toggle 按钮放最前**(ctrl-bar 顺序:编辑 E / 纸·墨 / 概览 O / 大纲 M)— 因为编辑最常用
+
+### 🛠️ 真实踩坑修复
+
+无新增(v5.2 是增量功能 · 没破老坑)。
+
+### ⛔ 弃用
+
+无。v5.1 双主题切换完全保留 · 跟 inline editing 互补。
+
+### 风险与回滚
+
+- 备份位置:`99-归档-Archive/raoqiu-slide-builder-v5.1.0-2026-05-12-before-v5.2/`
+- 回滚命令:`rm -rf <skill> && cp -R <备份> <skill>`
+- **向后兼容**:用户没启动编辑模式时 = 跟 v5.1 行为完全一致,不影响只看 PPT 的体验
+- **localStorage 隔离**:每个 PPT 用自己的 `location.pathname` 做 key,**不同 PPT 的编辑互不干扰**
+
+### 内部统计
+
+| 文件 | v5.1 | v5.2 | 变化 |
+|---|---|---|---|
+| SKILL.md | 24 KB | 26 KB | +2 KB(原则 7.5 Inline Editing) |
+| assets/template.html | 73 KB | 80 KB | **+7 KB**(inline editing CSS + JS + 浮动 UI) |
+| references/*.md | 不变 | 不变 | — |
+| scripts/*.sh | 不变 | 不变 | — |
+
+### 测试状态
+
+- ✅ 模板 inject 完成(title v5.2 / edit-toggle 按钮 / edit-banner / save-toast / raoqiuEdit API 全部就位)
+- ⚠️ 真实 PPT 上未实测(下一步:patch 已有的 AI 应用基础课-双主题切换版.html · 让用户立刻能测)
+- ⚠️ 跨浏览器兼容性未实测(预期 Chrome/Safari/Firefox 都 OK,contenteditable 是 HTML5 标准)
+- ✅ 跟双主题切换不冲突(CSS 用 `body.edit-mode[data-theme="X"]` 分主题适配边框色)
+
+### 借鉴来源(透明披露)
+
+- **[archlizheng/frontend-slides-editable](https://github.com/archlizheng/frontend-slides-editable)** 176 stars
+  - 思路:E 键编辑模式 / Ctrl+S 保存 / localStorage 持久化 / 导出干净 HTML
+  - 不是代码 fork,是机制借鉴,从零实现适配 v5.1 双主题 + 12 版式
+- **[zarazhangrui/frontend-slides](https://github.com/zarazhangrui/frontend-slides)** 17.1k stars
+  - 思路:浏览器内编辑文字 / 自动保存 / 不依赖 npm/build
+- **HTML5 标准 `contenteditable` 属性**
+  - 浏览器原生能力,零依赖,跨平台
+
+---
+
 ## v5.1.0 · 2026-05-12
 
 **主线**:把饶秋实测后选定的两个偏好风格(Paper & Ink 纸墨白 + Dark Botanical 暗色)沉淀进 v5 模板,任何 PPT 自动有右上角"纸 · 墨"切换 + T 键快捷键。

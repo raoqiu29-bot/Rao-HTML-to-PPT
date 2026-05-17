@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>饶秋老师 HTML PPT 标准模板 · v5.1</title>
+<title>饶秋老师 HTML PPT 标准模板 · v5.2</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1353,6 +1353,129 @@ body[data-theme="dark"] #theme-toggle .opt-dark{ opacity: 1; color: #d4a574; }
 /* 无 data-theme(McKinsey 默认)时:两个都是中等不透明,提示用户可以切 */
 body:not([data-theme]) #theme-toggle .opt-paper,
 body:not([data-theme]) #theme-toggle .opt-dark{ opacity: 0.6; }
+
+/* ============================================================
+   v5.2 Inline Editing · 浏览器内可编辑模式
+   ============================================================
+   触发方式:
+   - 按 E 键 启动/退出编辑模式
+   - 点击右上角"编辑 · E"按钮
+   - 编辑模式下,所有可编辑文字会显示蓝色虚线边框,鼠标悬停加深
+   - 点任意文字直接改 · Ctrl+S 保存到 localStorage
+   - 浮动指示条提示当前模式 + 操作
+
+   保护:
+   - 控件 UI / 装饰元素 / page-meta 不可编辑(避免误改)
+   - 编辑文字时,翻页键 / 主题切换键自动禁用(避免误触)
+   ============================================================ */
+
+/* 编辑模式状态显示 */
+.edit-banner{
+  position: fixed;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  display: none;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(34, 81, 255, 0.95);
+  color: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+body.edit-mode .edit-banner{ display: inline-flex; }
+
+.edit-banner .dot{
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: #FFD600;
+  border-radius: 50%;
+  animation: edit-pulse 1.5s ease-in-out infinite;
+}
+@keyframes edit-pulse{
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* 编辑模式按钮(右上角 ctrl-bar 第二个) */
+#edit-toggle{
+  display: inline-flex; gap: 0.3rem; align-items: center;
+}
+body.edit-mode #edit-toggle{
+  background: #FFD600 !important;
+  color: #1a1a1a !important;
+  border-color: #FFD600 !important;
+}
+
+/* 可编辑元素的视觉提示(只在编辑模式下显示) */
+body.edit-mode [contenteditable="true"]{
+  outline: 1px dashed rgba(34, 81, 255, 0.4);
+  outline-offset: 4px;
+  cursor: text;
+  transition: outline-color 0.15s;
+  border-radius: 2px;
+}
+body.edit-mode [contenteditable="true"]:hover{
+  outline: 1px dashed rgba(34, 81, 255, 0.8);
+  outline-offset: 4px;
+}
+body.edit-mode [contenteditable="true"]:focus{
+  outline: 2px solid rgba(34, 81, 255, 1);
+  outline-offset: 4px;
+  background: rgba(34, 81, 255, 0.04);
+}
+
+/* Paper 主题下编辑提示用红色(跟主题强调色一致) */
+body.edit-mode[data-theme="paper"] [contenteditable="true"]{
+  outline-color: rgba(196, 30, 58, 0.4);
+}
+body.edit-mode[data-theme="paper"] [contenteditable="true"]:hover{
+  outline-color: rgba(196, 30, 58, 0.8);
+}
+body.edit-mode[data-theme="paper"] [contenteditable="true"]:focus{
+  outline: 2px solid rgba(196, 30, 58, 1);
+  background: rgba(196, 30, 58, 0.04);
+}
+
+/* Dark 主题下编辑提示用金色 */
+body.edit-mode[data-theme="dark"] [contenteditable="true"]{
+  outline-color: rgba(212, 165, 116, 0.4);
+}
+body.edit-mode[data-theme="dark"] [contenteditable="true"]:hover{
+  outline-color: rgba(212, 165, 116, 0.8);
+}
+body.edit-mode[data-theme="dark"] [contenteditable="true"]:focus{
+  outline: 2px solid rgba(212, 165, 116, 1);
+  background: rgba(212, 165, 116, 0.1);
+}
+
+/* 已保存提示 toast */
+.save-toast{
+  position: fixed;
+  bottom: 4rem;
+  right: 2rem;
+  z-index: 1300;
+  padding: 0.5rem 1rem;
+  background: rgba(20, 150, 80, 0.95);
+  color: #ffffff;
+  border-radius: 6px;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+.save-toast.show{
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 <body class="theme-mckinsey">
@@ -1363,6 +1486,7 @@ body:not([data-theme]) #theme-toggle .opt-dark{ opacity: 0.6; }
 <div class="progress-bar" id="progress" style="width: 0%"></div>
 
 <div class="ctrl-bar">
+  <button class="ctrl-btn" id="edit-toggle" title="编辑模式 · 点文字直接改(快捷键 E)">编辑 · E</button>
   <button class="ctrl-btn" id="theme-toggle" title="切换 纸 / 墨 主题(快捷键 T)"><span class="opt-paper">纸</span><span class="sep">·</span><span class="opt-dark">墨</span></button>
   <button class="ctrl-btn" id="overview-btn">概览 · O</button>
   <button class="ctrl-btn" id="toc-btn">大纲 · M</button>
@@ -1825,6 +1949,224 @@ N (Next)   - 下一步:<span class="ph">[这一轮完成后下一轮要什么]</
   </section>
 
 </div>
+
+<!-- v5.2 Inline Editing · 编辑模式浮动指示条 + 已保存 toast -->
+<div class="edit-banner" aria-hidden="true">
+  <span class="dot"></span>
+  <span>编辑模式 · 点文字直接改 · Ctrl+S 保存 · E 退出</span>
+</div>
+<div class="save-toast" id="save-toast">✓ 已保存到本地</div>
+
+<!-- ============================================================
+     v5.2 Inline Editing · JS 运行时
+     - 按 E 键 / 点击"编辑 · E"按钮 启动/退出编辑模式
+     - 进入编辑模式:给可编辑元素加 contenteditable
+     - Ctrl+S:保存 stage 区域 HTML 到 localStorage
+     - 加载时:从 localStorage 恢复修改
+     - 编辑文字时翻页键/主题切换键自动禁用
+     ============================================================ -->
+<script>
+(function() {
+  // 可编辑的 CSS 选择器列表(只允许编辑"内容文字",不允许编辑控件/装饰)
+  var EDITABLE_SELECTORS = [
+    '.cover h1', '.cover .lead', '.cover .eyebrow',
+    '.chapter h1', '.chapter .ch-label', '.chapter .desc',
+    '.ending h1', '.ending .lead', '.ending .eyebrow',
+    '.page-title', '.page-subtitle',
+    '.card h3', '.card p', '.card .card-num',
+    '.metric .v', '.metric .l',
+    '.split h3', '.split h4', '.split p',
+    '.split li', '.list-clean li',
+    '.process-flow .step h4', '.process-flow .step p',
+    '.matrix-2x2 .quadrant h4', '.matrix-2x2 .quadrant p', '.matrix-2x2 .q-tag',
+    '.insight-tag', '.insight-body', '.insight-source',
+    '.insight-meta .label', '.insight-meta .brand-num',
+    '.big-number .v', '.big-number .lead', '.big-number .kicker', '.big-number .source',
+    '.big-quote .quote', '.big-quote .attribution', '.big-quote .kicker', '.big-quote .aside',
+    '.prompt-block', '.prompt-tag', '.prompt-meta',
+    '.task-card h3', '.task-card h4', '.task-card p', '.task-card li',
+    '.callout', '.callout-src',
+    '.data-source', '.data-source-block',
+    'blockquote', '.quote-source'
+  ];
+
+  var STORAGE_KEY_HTML = 'raoqiu-deck-html-edit-' + location.pathname;
+  var STORAGE_KEY_DIRTY = 'raoqiu-deck-dirty-' + location.pathname;
+
+  // 启动时:从 localStorage 恢复上次保存的内容
+  function restoreFromStorage() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY_HTML);
+      if (!saved) return;
+      var stage = document.querySelector('.stage');
+      if (!stage) return;
+      stage.innerHTML = saved;
+      console.log('[v5.2 inline edit] 已从 localStorage 恢复编辑内容');
+    } catch (e) {
+      console.warn('[v5.2 inline edit] 恢复失败:', e);
+    }
+  }
+
+  // 进入编辑模式
+  function enterEditMode() {
+    document.body.classList.add('edit-mode');
+    EDITABLE_SELECTORS.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        el.setAttribute('contenteditable', 'true');
+        el.setAttribute('spellcheck', 'false');
+      });
+    });
+  }
+
+  // 退出编辑模式
+  function exitEditMode() {
+    document.body.classList.remove('edit-mode');
+    document.querySelectorAll('[contenteditable]').forEach(function(el) {
+      el.removeAttribute('contenteditable');
+      el.removeAttribute('spellcheck');
+    });
+  }
+
+  function toggleEditMode() {
+    if (document.body.classList.contains('edit-mode')) {
+      exitEditMode();
+    } else {
+      enterEditMode();
+    }
+  }
+
+  // 保存到 localStorage
+  function saveToStorage() {
+    try {
+      var stage = document.querySelector('.stage');
+      if (!stage) return;
+      // 临时退出编辑模式,避免 contenteditable 属性被保存
+      var wasEdit = document.body.classList.contains('edit-mode');
+      if (wasEdit) {
+        document.querySelectorAll('[contenteditable]').forEach(function(el) {
+          el.removeAttribute('contenteditable');
+          el.removeAttribute('spellcheck');
+        });
+      }
+      localStorage.setItem(STORAGE_KEY_HTML, stage.innerHTML);
+      localStorage.setItem(STORAGE_KEY_DIRTY, '1');
+      // 恢复 contenteditable
+      if (wasEdit) {
+        EDITABLE_SELECTORS.forEach(function(sel) {
+          document.querySelectorAll(sel).forEach(function(el) {
+            el.setAttribute('contenteditable', 'true');
+            el.setAttribute('spellcheck', 'false');
+          });
+        });
+      }
+      showToast('✓ 已保存到本地(下次打开延续)');
+    } catch (e) {
+      console.warn('[v5.2 inline edit] 保存失败:', e);
+      showToast('✗ 保存失败 · 检查 localStorage');
+    }
+  }
+
+  // 清除 localStorage 恢复出厂内容
+  function resetToOriginal() {
+    if (!confirm('恢复出厂内容?所有编辑会丢失,这步无法撤销。')) return;
+    localStorage.removeItem(STORAGE_KEY_HTML);
+    localStorage.removeItem(STORAGE_KEY_DIRTY);
+    location.reload();
+  }
+
+  // 导出修改版 HTML(把当前内容打包成新 HTML 下载)
+  function exportEdited() {
+    var wasEdit = document.body.classList.contains('edit-mode');
+    if (wasEdit) exitEditMode();
+    // 克隆当前 document
+    var clone = document.documentElement.cloneNode(true);
+    // 移除所有 contenteditable / spellcheck 属性
+    clone.querySelectorAll('[contenteditable]').forEach(function(el) {
+      el.removeAttribute('contenteditable');
+      el.removeAttribute('spellcheck');
+    });
+    // 移除 edit-mode class
+    clone.querySelector('body').classList.remove('edit-mode');
+    var html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (document.title || 'deck') + '-edited.html';
+    a.click();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    if (wasEdit) enterEditMode();
+  }
+
+  // 浮动 toast 提示
+  function showToast(text) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+  }
+
+  // 装绑定
+  function setup() {
+    restoreFromStorage();
+
+    var btn = document.getElementById('edit-toggle');
+    if (btn) {
+      btn.addEventListener('click', toggleEditMode);
+    }
+
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+S / Cmd+S 保存(任何模式下都生效)
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (document.body.classList.contains('edit-mode')) {
+          saveToStorage();
+        }
+        return;
+      }
+
+      // E 键启动/退出编辑模式
+      if (e.key === 'e' || e.key === 'E') {
+        // 如果在 contenteditable 元素里编辑,E 是正常输入
+        if (e.target.isContentEditable) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        e.preventDefault();
+        toggleEditMode();
+        return;
+      }
+
+      // Esc 退出编辑模式(从任何 focus 状态)
+      if (e.key === 'Escape' && document.body.classList.contains('edit-mode')) {
+        if (e.target.isContentEditable) {
+          e.target.blur();
+        } else {
+          exitEditMode();
+        }
+        return;
+      }
+    });
+
+    // 暴露 API 到 window(给高级用户调试用)
+    window.raoqiuEdit = {
+      enter: enterEditMode,
+      exit: exitEditMode,
+      save: saveToStorage,
+      reset: resetToOriginal,
+      export: exportEdited
+    };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();
+</script>
+
 
 <!-- ============================================================
      v5.1 双主题切换 · 纸 / 墨
