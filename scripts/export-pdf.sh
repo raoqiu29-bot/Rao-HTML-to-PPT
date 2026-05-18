@@ -102,7 +102,15 @@ TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
 cat > "$TMPDIR/export.cjs" <<'JS_END'
+// v5.6.1 重写:逐张 slide 渲染成单页 PDF,再用 pdf-lib 合并
+// 旧实现用 Chromium print pagination,但模板里 .stage 是 fixed + overflow:hidden,
+// 32 张 slide 总被压成 1-8 页 PDF。这个新实现绕开 print pipeline:
+//   1. 切换 .active 显示一张 slide
+//   2. page.pdf() 给这一张出一份 1-page PDF (1920x1080)
+//   3. 用 pdf-lib 把 32 份单页 PDF 拼成最终 PDF
+// 每页仍是真矢量 PDF(文字可选 / 链接可点),不是图片堆。
 const { chromium } = require('playwright');
+const { PDFDocument } = require('pdf-lib');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
@@ -112,7 +120,7 @@ async function main() {
   const width = parseInt(w, 10);
   const height = parseInt(h, 10);
 
-  // 用 http 服务器加载 HTML,这样 Google Fonts CDN 和相对路径图片都能工作
+  // 用 http 服务器加载 HTML(Google Fonts CDN + 相对路径图片都能工作)
   const inputDir = path.dirname(path.resolve(inputHtml));
   const inputName = path.basename(inputHtml);
 
@@ -140,9 +148,9 @@ async function main() {
 
   console.log(`[info] 打开 ${url}`);
   await page.goto(url, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1500);  // 等动画结束
+  await page.waitForTimeout(1500);  // 等动画 + 字体加载结束
+  await page.evaluate(() => document.fonts && document.fonts.ready);
 
-  // 找所有 .slide
   const slideCount = await page.evaluate(() => document.querySelectorAll('.slide').length);
   if (slideCount === 0) {
     console.error('[错误] 没找到 .slide 元素,确认 HTML 是 Rao-HTML-to-PPT 生成的');
@@ -150,31 +158,58 @@ async function main() {
     server.close();
     process.exit(1);
   }
-  console.log(`[info] 找到 ${slideCount} 张 slide,开始截图`);
+  console.log(`[info] 找到 ${slideCount} 张 slide,开始逐张渲染 PDF`);
 
-  // 用 PDF 导出 · 每页一张
+  // 隐藏所有控件 / 装饰条 / 编辑模式 UI(只做一次,后续 .active 切换不影响)
   await page.evaluate(() => {
-    document.querySelectorAll('.slide').forEach((s) => {
-      s.style.position = 'relative';
-      s.style.display = 'flex';
-      s.style.pageBreakAfter = 'always';
-    });
-    // 隐藏控件
-    ['.ctrl-bar', '.nav-arrows', '.page-num', '#hint', '#toc-overlay', '#overview', '.progress-bar']
+    ['.ctrl-bar', '.nav-arrows', '.page-num', '#hint', '#toc-overlay', '#overview',
+     '.progress-bar', '.brand-bar', '.edit-banner', '.save-toast', '.edit-hotzone',
+     '.edit-toggle', '.theme-switch', '#toc-panel']
       .forEach((sel) => document.querySelectorAll(sel).forEach((e) => e.style.display = 'none'));
+    // 关闭页内 .slide.active 进入动画(fadeIn 0.35s),减少等待
+    const style = document.createElement('style');
+    style.textContent = '.slide, .slide.active { animation: none !important; }';
+    document.head.appendChild(style);
   });
 
-  await page.pdf({
-    path: outputPdf,
-    width: `${width}px`,
-    height: `${height}px`,
-    printBackground: true,
-    margin: { top: 0, right: 0, bottom: 0, left: 0 }
-  });
+  // 合并 PDF 用的容器
+  const mergedPdf = await PDFDocument.create();
+
+  for (let i = 0; i < slideCount; i++) {
+    // 切换 .active 到第 i 张
+    await page.evaluate((idx) => {
+      const slides = document.querySelectorAll('.slide');
+      slides.forEach((s, k) => {
+        if (k === idx) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+    }, i);
+    await page.waitForTimeout(120);  // 给 CSS 切换一点时间
+
+    // 这一张 slide 单独导出 1-page PDF(用 buffer,不落盘)
+    const singlePagePdf = await page.pdf({
+      width: `${width}px`,
+      height: `${height}px`,
+      printBackground: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      pageRanges: '1'
+    });
+
+    // 把这一张 PDF 的第 1 页拷进 merged
+    const tmpDoc = await PDFDocument.load(singlePagePdf);
+    const [copiedPage] = await mergedPdf.copyPages(tmpDoc, [0]);
+    mergedPdf.addPage(copiedPage);
+
+    process.stdout.write(`\r[info] 进度 ${i + 1} / ${slideCount}`);
+  }
+  process.stdout.write('\n');
+
+  const finalBytes = await mergedPdf.save();
+  fs.writeFileSync(outputPdf, finalBytes);
 
   await browser.close();
   server.close();
-  console.log(`[ok] PDF 已保存: ${outputPdf}`);
+  console.log(`[ok] PDF 已保存: ${outputPdf}(${slideCount} 页)`);
 }
 
 main().catch((err) => {
@@ -188,7 +223,10 @@ cat > "$TMPDIR/package.json" <<'PKG_END'
   "name": "raoqiu-pdf-export",
   "version": "1.0.0",
   "private": true,
-  "dependencies": { "playwright": "^1.40.0" }
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "pdf-lib": "^1.17.1"
+  }
 }
 PKG_END
 

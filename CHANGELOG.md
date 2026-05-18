@@ -8,6 +8,104 @@
 
 ---
 
+## v5.6.1 · 2026-05-18(hotfix · `export-pdf.sh` 真 32 页 PDF)
+
+**主线**:饶秋实测把 32 页 HTML 课件导成 PDF 时,旧 `export-pdf.sh` 只出 1 页(后来调整后变 8 页)— 远不是 32 页。这次彻底修。
+
+### 🛠️ 真实踩坑修复
+
+#### 现象
+
+`bash scripts/export-pdf.sh 32页课件.html out.pdf` → 输出 PDF 实际只有 1 页(或 8 页)。
+
+#### 根因
+
+模板里:
+- `html, body { overflow: hidden; height: 100% }`
+- `.stage { position: fixed; inset: 0; overflow: hidden }`
+- `.slide { position: absolute; inset: 0; display: none }` · `.slide.active { display: flex }`
+
+旧脚本只把 `.slide` 改成 `position: relative + display: flex`,**但 `.stage` 还是 `position: fixed + overflow: hidden`**。所以 32 张 .slide 全堆叠在那个 fixed 容器里,被 viewport 框死,Chromium print pagination 只看到"一个 viewport 的内容"→ 1 页。
+
+我尝试过两轮"加 `!important` 解锁 html/body/.stage + 加 `page-break-after: always`"还是不 work — Chromium 的 print pipeline 在这种 fixed/absolute 切换显示的 deck 模板上**就是不可靠**。
+
+#### 修法 · 换实现思路
+
+**放弃 print pagination,改成"逐张 slide 单独渲染 PDF + pdf-lib 合并"**:
+
+```javascript
+for (let i = 0; i < slideCount; i++) {
+  // 1. 切换 .active 到第 i 张
+  await page.evaluate((idx) => {
+    document.querySelectorAll('.slide').forEach((s, k) => {
+      s.classList.toggle('active', k === idx);
+    });
+  }, i);
+
+  // 2. 给这一张出一份 1-page PDF (buffer)
+  const singlePagePdf = await page.pdf({ width: '1920px', height: '1080px', ... });
+
+  // 3. 把这页拷进 merged PDF
+  const tmpDoc = await PDFDocument.load(singlePagePdf);
+  const [copiedPage] = await mergedPdf.copyPages(tmpDoc, [0]);
+  mergedPdf.addPage(copiedPage);
+}
+```
+
+**优点**:
+- ✅ **32 张 .slide → 32 页 PDF**(严格 1:1)
+- ✅ **每页仍是真矢量 PDF**(文字可选 / 链接可点),不是图片堆
+- ✅ 绕开 print pagination 的所有 quirks(fixed / overflow / @page / break-after 这些都不用纠结)
+- ✅ 跟 `export-pptx.sh` 同款思路(逐张切换 + 截图合成),已经在 v5.4.1 验证稳定
+
+**代价**:
+- 多一个 npm 依赖 `pdf-lib`(~500KB,无 native deps,首次安装一次)
+- 渲染时间稍长(32 次 page.pdf() 调用,实测 ≈ 25 秒 vs 旧版 ≈ 8 秒)
+
+#### 实测验证
+
+```
+原 30 页 AIGC 视频生成课件 → Rao v5.6 重做的 32 页 HTML → PDF
+  bash scripts/export-pdf.sh AIGC-课件.html AIGC-课件.pdf
+  [info] 找到 32 张 slide,开始逐张渲染 PDF
+  [info] 进度 32 / 32
+  [ok] PDF 已保存(32 页)
+
+  mdls -name kMDItemNumberOfPages AIGC-课件.pdf
+  → kMDItemNumberOfPages = 32 ✅
+  
+  文件大小:10.4 MB(矢量 PDF,32 页 1920×1080)
+```
+
+### 📂 文件变更
+
+```
+scripts/export-pdf.sh     重写 page.pdf() 调用为逐页循环 + pdf-lib 合并
+                          package.json 加 pdf-lib 依赖
+                          (~120 行 diff,核心逻辑全换)
+SKILL.md                  version 5.6.0 → 5.6.1
+CHANGELOG.md              本条
+```
+
+### 🎯 用法变化(对老用户)
+
+**无变化**。命令完全一样:
+```bash
+bash scripts/export-pdf.sh <file.html>              # 默认 1920×1080
+bash scripts/export-pdf.sh <file.html> --compact    # 1280×720 紧凑
+bash scripts/export-pdf.sh <file.html> --skip-gate  # 跳过 P0 门控
+```
+
+首次跑会自动装 `pdf-lib`(几秒钟,不影响 Playwright/Chromium 那一次性 150MB 下载)。
+
+### 🔬 lessons learned
+
+- **Chrome print pagination 在 deck 模板上不可靠** — 任何用 `position: fixed/absolute + .active 切换显示` 的 SPA-style HTML 都不适合直接 `page.pdf()`
+- **遇到这种情况,改用"per-element 渲染 + 合并"才稳** — 我们 `export-pptx.sh` 早就这么干了,`export-pdf.sh` 这次也对齐
+- **不要试图用 `!important` + `@page` + `break-after` 一层一层"打补丁"** — 改架构比加补丁省时间。我前两轮折腾的 hour 印证了这一点
+
+---
+
 ## v5.6.0 · 2026-05-18(借鉴 hugohe3/ppt-master 18k stars · 方案 C)
 
 **主线**:饶秋发现 [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master)(17,782 stars),做完调研走方案 C——借 P0 三件 + P1 一件 + 战略上明示边界推荐对方。
