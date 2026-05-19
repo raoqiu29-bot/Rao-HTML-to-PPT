@@ -8,6 +8,106 @@
 
 ---
 
+## v5.13.0 · 2026-05-19(关键词减法 + 数字可视化重型武器 · 饶秋实战反馈第 5 弹)
+
+**饶秋 2026-05-19 第 5 次反馈**:看完 v5.12 demo 后:
+1. "关键词的视觉化不要颜色太多了,样式也太多了 — **最多 3 种颜色**"
+2. "Fragment 一步一步弹出没问题,这个是很好的设置"(✅ v5.12 保留)
+3. "**还有什么好的数字化展示?**" — 比如 0→80% 动画类似的
+
+**v5.13 做两件事**:**砍冗余颜色 + 加 4 种数字可视化重型武器**。
+
+### 🔁 改 · 关键词高亮做减法(7 种 → 3 种)
+
+**v5.12 的 7 种武器**(.kw-brand / .kw-pop / .kw-num / .kw-warm / .kw-up / .kw-mark / .kw-underline):颜色多 5+ 种,违反 McKinsey 克制原则。
+
+**v5.13 砍到 3 种**:
+
+| 武器 | class | 用途 | 颜色 |
+|---|---|---|---|
+| 主色加粗 | `.kw-key` | 默认武器(95% 场景)| 深蓝(主) |
+| 数字 mono | `.kw-num2` | 让数字跳出 | 深蓝(主)+ Manrope 字体 |
+| 高亮底色 | `.kw-mark2` | 强记忆点 · 每页 ≤ 2 处 | 客户色(第二种) |
+
+**整段视觉只 2 种颜色**(深蓝 + 客户色)。
+
+**向后兼容**:v5.12 老的 7 种 class 保留(不删 CSS)— 已存在的 deck 不会坏。但**新生成内容只用 3 种新 class**。
+
+### ✨ 新增 · 4 种数字可视化重型武器
+
+#### 模式 17 · Donut + 中心数字 count-up ⭐⭐
+
+```html
+<div class="viz-donut-wrap">
+  <svg viewBox="0 0 200 200">
+    <circle class="viz-donut-bg" cx="100" cy="100" r="80"/>
+    <circle class="viz-donut-fg" cx="100" cy="100" r="80"
+            transform="rotate(-90 100 100)" data-target="89"/>
+  </svg>
+  <div class="viz-donut-center">
+    <div class="v"><span class="js-count" data-target="89">0</span>%</div>
+    <div class="l">学员通过率</div>
+  </div>
+</div>
+```
+
+圆环 stroke-dashoffset draw 从 502 → (502 - 502×89/100) · 中心数字 0→89 count-up · **同步 2 秒**。
+
+#### 模式 18 · 半圆 gauge 仪表盘 ⭐⭐
+
+汽车仪表风:**弧形进度 + 指针摆动 + 数字 count-up** 三合一。适合"分值 / 满意度 / 完成度"。
+
+#### 模式 19 · 柱状 grow + count-up ⭐⭐
+
+柱子从底 height 0 → target% 长起来,**每柱错峰 80ms**,顶部数字同步 count-up。适合时间序列对比。
+
+#### 模式 20 · 整页大数字 Hero ⭐⭐⭐
+
+Apple Keynote 极简风:整页 80vh 一个超大数字(`clamp(10rem, 22vw, 22rem)`)+ 衬线大字 lead + source 行。**全场就讲一个数字时用这个**。
+
+### 🛠️ 技术 · 自动动画引擎(MutationObserver hook)
+
+template.html 内置独立 IIFE,用 **MutationObserver** 监听任何 `.slide` 拿到 `.active` class 时,**自动触发该 slide 内的所有数字动画**。
+
+**用户只需加 HTML 标签 + class + data-target,完全不用写 JS**:
+- `.js-count` data-target="80" → 数字 0→80 滚动 1.8 秒
+- `.viz-donut-fg` data-target="89" → 圆环 draw 到 89%
+- `.viz-gauge-arc-fg` + `.viz-gauge-needle` data-target="92" → 弧填 + 指针摆
+- `.viz-bar` data-target="65" → 柱子长到 65%
+
+跟 Slideshow / Lightbox 引擎**完全解耦**,通过 DOM class 变化触发。
+
+### 📂 文件变更
+
+```
+assets/template.html  · CSS +180 行(kw-key/num2/mark2 + viz-donut/gauge/bar/big-hero 4 套)
+                      · JS +85 行(数字可视化动画引擎 IIFE · MutationObserver hook)
+references/visualization-first.md  · +模式 17-20(4 种数字武器)· 模式 16 改为精简版(标 v5.12 旧版 deprecated)
+SKILL.md              · version 5.12.0 → 5.13.0
+CHANGELOG.md          · 本条
+桌面 demo             · 7 张 → 11 张(加 donut / gauge / bar grow / 大数字 hero 4 张)
+```
+
+### 🔬 验证
+
+- [x] template.html · audit 8/8 PASS + Quality Gate 12/12 P0 PASS
+- [x] kw-key / kw-num2 / kw-mark2 CSS × 3 类
+- [x] viz-donut / gauge / bar / big-hero CSS × 28 selectors
+- [x] triggerVizAnimations 引擎 × 3 (init + observer + 函数本体)
+- [x] 桌面 demo 11 张,所有 v5.13 新武器都有实例
+
+### 🧠 设计 trade-off
+
+| 选项 | 选了 | 理由 |
+|---|---|---|
+| 砍掉 v5.12 旧 7 武器 vs 保留 | **保留 CSS · 文档标 deprecated** | 已存在 deck 不会坏;新生成内容用新 3 种 |
+| 第二种颜色用客户色 vs 用绿/黄 | **客户色** | 跟 McKinsey 风的"客户色出现 ≤ 3 处"规则一致,自然融入 |
+| Donut 的中心数字 vs 不放数字 | **放** | 圆环 + 数字 = 双重感知,数字是核心信息载体 |
+| Bar grow 错峰 vs 同时长 | **错峰 80ms** | "一根根长起来"比"齐刷刷"更有动感 |
+| 数字动画引擎跟 Slideshow 耦合 vs 解耦 | **MutationObserver 解耦** | 引擎独立 IIFE,以后加新动画不动核心 Slideshow |
+
+---
+
 ## v5.12.0 · 2026-05-19(Fragment 渐进显示 + 关键词高亮武器库 · 饶秋实战反馈第 4 弹)
 
 **主线**:饶秋 2026-05-19 第 4 次反馈,看完 v5.11 的 4 种动效 demo 后提出 2 个新核心需求:

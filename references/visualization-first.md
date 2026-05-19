@@ -201,7 +201,138 @@
 - 逐个出现 → **听众跟随讲师节奏**,讲到哪看到哪
 - 给讲师"控场感"
 
-### 模式 16 · ⭐ 关键词高亮武器库(v5.12 · 大段文字也"可视化")
+### 模式 17 · ⭐⭐ Donut + 中心数字 count-up(v5.13)
+
+**触发场景**:单个百分比数据(完成率 / 通过率 / 满意度 / 转化率)。
+
+**比单独 count-up 强**:有"圆环 draw"的视觉冲击,数字落在中心更精致。
+
+**用法**:
+```html
+<div class="viz-donut-wrap">
+  <svg viewBox="0 0 200 200">
+    <circle class="viz-donut-bg" cx="100" cy="100" r="80"/>
+    <circle class="viz-donut-fg" cx="100" cy="100" r="80"
+            transform="rotate(-90 100 100)"
+            data-target="89"/>
+  </svg>
+  <div class="viz-donut-center">
+    <div class="v"><span class="js-count" data-target="89">0</span><span class="pct">%</span></div>
+    <div class="l">学员通过率</div>
+  </div>
+</div>
+```
+
+**动画自动触发**(切片到 active 时 MutationObserver hook)— **不用写任何 JS**。
+
+### 模式 18 · ⭐⭐ 半圆 gauge 仪表盘(v5.13)
+
+**触发场景**:0-100 范围的"分值 / 评分 / 健康度 / 满意度 / 完成度"。
+
+**为什么用**:汽车仪表盘风,**指针摆动 + 弧形填充**双动画,有"实时测量"的科技感。比 donut 更适合"评分"语义。
+
+**用法**:
+```html
+<div class="viz-gauge-wrap">
+  <svg viewBox="0 0 200 130">
+    <path class="viz-gauge-arc-bg" d="M 10 100 A 90 90 0 0 1 190 100"/>
+    <path class="viz-gauge-arc-fg" d="M 10 100 A 90 90 0 0 1 190 100" data-target="92"/>
+    <text class="scale-label" x="10" y="120" text-anchor="middle">0</text>
+    <text class="scale-label" x="100" y="20" text-anchor="middle">50</text>
+    <text class="scale-label" x="190" y="120" text-anchor="middle">100</text>
+    <line class="viz-gauge-needle" x1="100" y1="100" x2="100" y2="20" data-target="92"/>
+    <circle class="viz-gauge-pivot" cx="100" cy="100" r="6"/>
+  </svg>
+  <div style="text-align:center;margin-top:1rem;">
+    <span class="js-count" data-target="92" style="font-size:4rem;font-family:var(--f-en);">0</span>
+  </div>
+</div>
+```
+
+### 模式 19 · ⭐⭐ 柱状 grow + count-up(v5.13)
+
+**触发场景**:时间序列对比(月度 / 季度 / 周度变化)、排名(各部门 / 各产品)、多类目数值。
+
+**为什么用**:柱子从底**长起来** + 顶部数字**滚动**,比 sparkline / 静态 bar chart 视觉冲击强一个量级。
+
+**用法**:
+```html
+<div class="viz-bar-chart">
+  <div class="viz-bar" data-target="45">
+    <div class="v"><span class="js-count" data-target="350">0</span></div>
+  </div>
+  <div class="viz-bar" data-target="58">
+    <div class="v"><span class="js-count" data-target="450">0</span></div>
+  </div>
+  <!-- ...更多柱子... -->
+  <div class="viz-bar accent" data-target="100">  <!-- 最后一个用客户色突出 -->
+    <div class="v"><span class="js-count" data-target="780">0</span></div>
+  </div>
+</div>
+<div class="viz-bar-labels">
+  <div class="label">2025-12</div>
+  <div class="label">2026-01</div>
+  <!-- ... -->
+</div>
+```
+
+`data-target="45"` 是柱子高度百分比(45% of 容器高度);`js-count data-target="350"` 是顶部数字目标值。两个动画自动同步。
+
+### 模式 20 · ⭐⭐⭐ 整页大数字 Hero(v5.13 · Apple Keynote 极简)
+
+**触发场景**:单个核心数字想要**最强视觉冲击**(全场就讲一个数字时)。
+
+**为什么用**:整页 80vh 一个超大数字 + 1 句衬线大字 lead + 1 行 source。**Apple Keynote 经典套路**,讲师指着数字讲故事,听众无法跑神。
+
+**用法**:
+```html
+<div class="viz-big-hero">
+  <div class="eyebrow">真实差距 · THE GAP</div>
+  <div class="super-v">
+    <span class="js-count" data-target="60">0</span><span class="pct">%</span>
+  </div>
+  <p class="lead">行政办公老师每周用 AI 不到 1 次 — <span class="kw-mark2">而管理层以为是 80%</span>。</p>
+  <p class="source">SOURCE / 内部经营调研 · 2026 Q1 · 1200 样本</p>
+</div>
+```
+
+字号自适应 `clamp(10rem, 22vw, 22rem)`,在大屏小屏都顶天立地。
+
+### 模式 16 · ⭐ 关键词高亮(v5.13 精简版 · 只 3 种武器 · 整体只 2 种颜色)
+
+> **饶秋 2026-05-19 第 5 次反馈**:
+> > "关键词的视觉化不要颜色太多了,样式也太多了,你颜色样式一多就看起来非常的影响大家的这个观感。最多选三种颜色就 ok 了。"
+
+**v5.13 砍掉 v5.12 的 7 种武器**(.kw-brand / .kw-pop / .kw-warm / .kw-up / .kw-mark / .kw-underline 6 个 deprecated · 老 class 保留作 backward compat 但**新生成内容不许用**),只保留 **3 种核心**:
+
+| 武器 | class | 用途 | 颜色 |
+|---|---|---|---|
+| 主色加粗 | `.kw-key` | 默认武器 · 名词性核心词 · 95% 场景 | 深蓝(主) |
+| 数字 mono | `.kw-num2` | 让数字跳出("60%""2 小时""12×") | 深蓝(主)+ 字体变化 |
+| 高亮底色 | `.kw-mark2` | 强记忆点(类似荧光笔)· **每页 ≤ 2 处** | 客户色(第二种颜色) |
+
+**整段视觉只 2 种颜色**(深蓝主 + 客户色),符合 McKinsey 克制原则。
+
+**反例**(纯文字):
+> 用豆包写一份 2000 字的迎新晚会策划方案,传统做法要 2 小时,跟豆包协作只要 10 分钟,效率提升 12 倍。关键是让 AI 先反问你 5 个问题,你一次性回完,它再开始写。
+
+**正例 v5.13**(3 种武器配合):
+```html
+<p>用豆包写一份 <span class="kw-num2">2000 字</span> 的迎新晚会策划方案,
+传统做法要 <span class="kw-num2">2 小时</span>,跟豆包协作只要 <span class="kw-num2">10 分钟</span>,
+效率提升 <span class="kw-num2">12 倍</span>。
+关键是让 AI 先 <span class="kw-mark2">反问你 5 个问题</span>,
+你 <span class="kw-key">一次性回完</span>,它再开始写。</p>
+```
+
+**AI 生成时的强约束**:
+- 每段 ≥ 30 字必须给 3-5 个关键词配武器
+- 数字 + 单位 → 一律 `.kw-num2`
+- 核心动作 / 名词 → `.kw-key`
+- 强结论 / 警示句 → `.kw-mark2`(慎用,每页 ≤ 2 处)
+- **不许用 v5.12 的 .kw-pop / .kw-warm / .kw-up / .kw-underline**(已 deprecated)
+
+### v5.12 旧版 7 武器(deprecated · 保留 backward compat · 不要新用)
 
 **饶秋 2026-05-19 反馈原话**:"一旦遇到大段文字的时候,你就需要去这个大段文字里面找出一些关键词,然后针对这个关键词进行一些加粗、加深、或者颜色的变化或者做一些关键词的一些优化的这种排版"
 
