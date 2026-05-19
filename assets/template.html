@@ -1576,12 +1576,38 @@ body.edit-mode .prompt-block::after { display: none; }
 }
 /* lightbox 内的克隆元素放大显示(撑满 wrap)*/
 .lightbox-clone-wrap > * {
-  padding: 2.5rem 3rem !important;
+  /* v5.9 升级:用 zoom 实现整体等比放大(字号 + padding + border + 嵌套元素全部跟着)
+     饶秋 2026-05-19 实战反馈:之前 font-size: 1.15em 几乎看不出放大,卡片框变大但文字还是小
+     Safari + Chrome + Edge 全支持;Firefox fallback 见 @supports 块 */
+  zoom: 2.0;
   margin: 0 !important;
+  padding: 1.4rem 2rem !important;
   width: auto !important;
-  min-width: 60vw;
-  font-size: 1.15em;  /* 整体放大字号 */
+  min-width: 28vw;
+  max-width: 44vw;  /* 防止 matrix-2x2 / process-flow 等宽 layout 撑爆 viewport */
 }
+/* Firefox 不支持 zoom · 用 transform: scale fallback */
+@supports not (zoom: 2) {
+  .lightbox-clone-wrap > * {
+    transform: scale(2.0);
+    transform-origin: top center;
+    margin: 6rem 0 !important;
+  }
+}
+/* 双保险:即使 zoom 在某些 layout 上失效,嵌套元素的字号也强制变大 */
+.lightbox-clone-wrap > * h2,
+.lightbox-clone-wrap > * .page-title { font-size: 1.35em !important; }
+.lightbox-clone-wrap > * h3,
+.lightbox-clone-wrap > * h4 { font-size: 1.25em !important; line-height: 1.35 !important; }
+.lightbox-clone-wrap > * p,
+.lightbox-clone-wrap > * li,
+.lightbox-clone-wrap > * .desc { font-size: 1.18em !important; line-height: 1.7 !important; }
+.lightbox-clone-wrap > * .card-num,
+.lightbox-clone-wrap > * .q-tag,
+.lightbox-clone-wrap > * .step-num { font-size: 1.1em !important; }
+.lightbox-clone-wrap > * .metric .v,
+.lightbox-clone-wrap > * .big-number .v { font-size: 1.4em !important; }
+
 .lightbox-clone-wrap .prompt-block::after { display: none; }  /* 放大后不再显示"复制"提示 */
 
 /* 关闭按钮 + 提示 */

@@ -8,6 +8,95 @@
 
 ---
 
+## v5.9.0 · 2026-05-19(Lightbox 真整体放大 · hotfix · 饶秋实战反馈)
+
+**主线**:饶秋 2026-05-19 锦江学院课件实战反馈 — 双击卡片"放大"后,**外框确实变大了,但里面的字号还是原大小**,视觉上很空。这是 v5.7 Lightbox 设计 bug。
+
+### 🛠️ 真实踩坑修复
+
+#### 现象
+
+用户截图对比:
+- 普通状态:卡片是合理的小尺寸,文字字号正常
+- 双击放大后:卡片框宽度铺满屏(到 90vw),但**里面 h3 / p / li 的字号没动**,卡片中间一大块视觉空白
+
+#### 根因
+
+v5.7 lightbox CSS 用了 `font-size: 1.15em`:
+```css
+.lightbox-clone-wrap > * {
+  font-size: 1.15em;  /* ❌ 只放大 15% · 几乎看不出来 */
+}
+```
+
+两个问题:
+1. **1.15em 太弱** — 放大 15% 视觉上几乎察觉不到
+2. **`> *` 只对直接子元素生效** — 卡片内部的 h3 / p / li / span 都有自己的固定 font-size,根本不继承外层放大
+
+所以"放大"只放大了外框,**字号和内部 layout 都没动**。
+
+#### 修法
+
+放弃 font-size 思路,**用 CSS `zoom` 属性做整体等比缩放**:
+
+```css
+.lightbox-clone-wrap > * {
+  zoom: 2.0;  /* ✅ 真整体放大 2 倍 · 字号 / padding / border / nested 全部跟着 */
+  margin: 0 !important;
+  padding: 1.4rem 2rem !important;
+  min-width: 28vw;
+  max-width: 44vw;  /* 防止 matrix-2x2 / process-flow 等宽 layout 撑爆 viewport */
+}
+
+/* Firefox 不支持 zoom · transform: scale fallback */
+@supports not (zoom: 2) {
+  .lightbox-clone-wrap > * {
+    transform: scale(2.0);
+    transform-origin: top center;
+    margin: 6rem 0 !important;
+  }
+}
+
+/* 双保险:即使 zoom 在某些 layout 失效,嵌套元素也强制大字号 */
+.lightbox-clone-wrap > * h2, .lightbox-clone-wrap > * .page-title { font-size: 1.35em !important; }
+.lightbox-clone-wrap > * h3, .lightbox-clone-wrap > * h4 { font-size: 1.25em !important; }
+.lightbox-clone-wrap > * p, .lightbox-clone-wrap > * li { font-size: 1.18em !important; }
+.lightbox-clone-wrap > * .card-num, .lightbox-clone-wrap > * .q-tag { font-size: 1.1em !important; }
+.lightbox-clone-wrap > * .metric .v, .lightbox-clone-wrap > * .big-number .v { font-size: 1.4em !important; }
+```
+
+#### 为什么用 zoom 而不是 transform: scale?
+
+| 方案 | 优点 | 缺点 |
+|---|---|---|
+| `font-size: Xem` | 标准 CSS | **只影响直接子,nested 不继承** |
+| `transform: scale()` | 真整体放大 | **不影响 layout 占用空间**,会跟 wrap 边界混乱,需要单独算 margin |
+| **`zoom: 2.0`** | **真整体放大 + 影响 layout 空间** | 非标准 CSS,但 Webkit/Blink/Chromium 全支持(Safari/Chrome/Edge),Firefox 不支持 → 用 @supports fallback |
+
+对饶秋的场景(Safari 现场演讲)`zoom` 完美。Firefox 用 `transform: scale` 兜底。
+
+### 📂 文件变更
+
+```
+assets/template.html  · .lightbox-clone-wrap > * CSS 块重写(+25 行)
+SKILL.md              · version 5.8.0 → 5.9.0
+CHANGELOG.md          · 本条
+```
+
+**注**:本次也直接把改动 patch 到桌面归档的锦江学院 v0.3 课件了(用户立刻能用)。所有未来 deck 用 template.html 生成的自动带新版 lightbox。
+
+### 🔬 验证
+
+- [x] 锦江课件 audit 8/8 PASS · Quality Gate 12/12 P0 PASS
+- [x] template.html 自查 8/8 PASS
+- [ ] 实操:用户在 Safari 里双击卡片,看 zoom 是否真生效(等饶秋下次现场反馈)
+
+### 🧠 lesson · 写进 upgrade-existing-deck.md
+
+> font-size: Xem 不会影响 nested 子元素的固定字号。需要"整体放大"用 `zoom` 或 `transform: scale`,**不是 font-size**。
+
+---
+
 ## v5.8.0 · 2026-05-18(Mode C-enhance 升级老课件标准化 + audit-deck 工具 + Lightbox 价值正式确认)
 
 **主线**:2026-05-18 锦江学院 v0.1 课件升级实战中,反复踩坑两次("按 E 没反应""按 T 没反应")— 根因是 AI 没系统性 audit 老文件缺哪些模块,凭直觉补丁。这次把 Mode C-enhance(升级老课件)做成标准工作流,绝不再来回踩。
