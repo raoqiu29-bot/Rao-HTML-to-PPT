@@ -8,6 +8,115 @@
 
 ---
 
+## v5.12.0 · 2026-05-19(Fragment 渐进显示 + 关键词高亮武器库 · 饶秋实战反馈第 4 弹)
+
+**主线**:饶秋 2026-05-19 第 4 次反馈,看完 v5.11 的 4 种动效 demo 后提出 2 个新核心需求:
+
+1. "**步骤是按 1 2 3 4 5 顺序出现的时候,先出现第一个,点击之后再出现第二个,加一点这个逐步出现的动画效果会不会更好一点?**"
+2. "**一旦遇到大段文字,找出关键词进行加粗、加深、颜色变化、关键词排版优化**"
+
+这两个都是 PPT 演讲现场的核心需求:**讲师边讲边出 + 大段文字也"可视化"**。
+
+### ✨ 新增
+
+#### 1. Fragment 渐进显示(reveal.js 风 build · 培训现场神器)
+
+**做法**:给元素加 `class="fragment"` → 默认隐藏(opacity 0 + translateY 12px + scale 0.97)→ 按 → / 空格 / 下一页按钮**先逐个 reveal**,全部 reveal 完后再按 → 才真翻页。按 ← 撤销最后一个 fragment(讲师讲错能回退)。
+
+**Slideshow.next / prev 已经 fragment-aware**(v5.12 集成进 template.html),**不用写任何 JS,加 class 就行**:
+
+```html
+<div class="step fragment">步骤 1</div>
+<div class="step fragment">步骤 2</div>
+<div class="step fragment">步骤 3</div>
+```
+
+**变体**:
+- `.fragment.fade-only` — 只 fade 不位移
+- `.fragment.from-left` — 从左滑入
+- `.fragment.zoom` — scale 0.85 → 1
+
+**对培训现场为什么关键**:
+- 卡片一次性全亮 → 听众目光散 / 讲师抓不回来
+- 逐个出现 → 听众跟随讲师节奏 + 讲师有"控场感"
+
+**show() 内置 reset**:切片时(进入/离开)自动清除所有 fragment 的 revealed 状态,**回到这页时所有 fragment 重新隐藏**,讲师再讲一遍照样能用。
+
+#### 2. 关键词高亮武器库(6 + 1 种武器)
+
+**思路**:**不是简单 bold,要按语义选武器**。
+
+| 武器 | class | 用途 |
+|---|---|---|
+| 主色加粗 | `.kw-brand` | 默认强调 / 名词性核心词 |
+| 大字 + 客户色 | `.kw-pop` | 超强调 / 核心结论 |
+| 数字 mono | `.kw-num` | "60%""2 小时""12×"自动跳出 |
+| 警示色 | `.kw-warm` | 反例 / 警告 / 痛点 |
+| 正向色 | `.kw-up` | 收益 / 成功 |
+| 荧光底色 | `.kw-mark` | 强记忆点(类似荧光笔)|
+| SVG 波浪下划线 | `.kw-underline` | 手绘"亲笔强调"感 |
+
+**多主题适配**:每个 kw-* 在 paper / dark 主题下色值都有专门优化(避免 dark 底用太深红看不见 / paper 底荧光色调淡)。
+
+**AI 生成时的强约束**(写进 visualization-first.md 模式 16):
+- 每个段落 ≥ 30 字,**必须**给 3-5 个关键词包 kw-* 武器
+- 不许"整段没有任何高亮"
+- 武器搭配按语义:数字 → kw-num · 痛点 → kw-warm · 收益 → kw-up · 核心动作 → kw-brand · 强结论 → kw-pop / kw-mark
+
+#### 3. 桌面 demo 文件加 2 张新片(7 张总)
+
+```
+/Users/raoyuli/Desktop/可视化版式探索-2026-05-19.html
+├── 0 封面(menu 列出 6 个 demo · 后 2 个标 ⭐)
+├── 1 Count-up 大数字 + 进度条
+├── 2 Icon Array 点阵
+├── 3 径向放射 layout
+├── 4 垂直 Timeline + Stagger
+├── 5 ⭐ Fragment 渐进显示(5 个步骤按 → 逐个出现)
+└── 6 ⭐ 关键词高亮武器库(左纯文字 vs 右武器配)
+```
+
+### 🎯 v5.11 + v5.12 6 + 2 种动效全部进入"动效武器库"
+
+所有未来 deck 自动可用:
+- 模式 11 · Count-up 数字动画
+- 模式 12 · Icon Array 点阵
+- 模式 13 · 径向放射 layout
+- 模式 14 · 垂直 Timeline + Stagger
+- **模式 15 · Fragment 渐进显示**(v5.12)
+- **模式 16 · 关键词高亮武器库**(v5.12)
+
+### 📂 文件变更
+
+```
+assets/template.html  · +60 行 CSS(kw-* 7 个 class + .fragment 5 个 class)
+                      · Slideshow.next/prev 改造支持 fragment(+40 行)
+                      · Slideshow.show() 加 fragment reset 逻辑
+references/visualization-first.md  · 加模式 11-16(扩展 6 个模式)
+SKILL.md              · version 5.11.0 → 5.12.0
+CHANGELOG.md          · 本条
+桌面 demo             · +2 张 slide,总 7 张
+```
+
+### 🔬 验证
+
+- [x] template.html: kw-* class × 8 / .fragment selector × 7 / Slideshow fragment-aware × 3
+- [x] audit 8/8 PASS + Quality Gate 12/12 P0 PASS(template 自查)
+- [x] demo 文件 7 张,fragment 实例 × 5,关键词高亮实例 × 8
+- [ ] 实操:你打开 demo 翻到第 6 张,按 → 逐个出现 5 个步骤
+
+### 🧠 设计 trade-off
+
+| 选项 | 选了 | 理由 |
+|---|---|---|
+| Fragment 全 reset on slide change vs 保留状态 | **全 reset** | 讲师再讲一遍课时,fragment 要从头逐个出 |
+| Fragment 跨片续讲 vs 严格本片 | **严格本片** | 一页讲完就翻,fragment 跟分页强绑定 |
+| ← 完全撤销 vs ← 翻上一页 | **← 先撤 fragment,撤完才翻** | 讲错能即时撤回当前 step,不丢上下文 |
+| 关键词高亮 强制 vs 推荐 | **AI 生成时强制(每段 3-5 个)**| 不强制就是 v5.11 之前的"全文字"问题复现 |
+| 6 种武器 全部启用 vs 简化 | **全部启用 + 用法表** | 6 种各管一类语义,精准比统一更好用 |
+
+---
+
 ## v5.11.0 · 2026-05-19(可视化优先工作流 · 饶秋实战反馈第 3 弹)
 
 **主线**:饶秋 2026-05-19 锦江课件第 3 次反馈 —— "整个文字太多,讲解的时候听众抓不住重点,可视化做得不够"。

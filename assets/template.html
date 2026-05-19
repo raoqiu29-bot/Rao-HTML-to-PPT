@@ -694,6 +694,75 @@ body[data-strict-viewport="off"] .slide{
 .hl-warm{ color: var(--c-warm); font-weight: 600; }
 
 /* ============================================================
+   v5.12 · 关键词高亮武器库(6 种武器)+ Fragment 渐进显示
+   ============================================================
+   遇到大段文字时,主动给关键词包标签,让眼睛知道该停哪 —
+   不是简单 bold,要按语义选武器
+   ============================================================ */
+.kw-brand { color: var(--c-brand); font-weight: 700; }
+.kw-pop {
+  font-size: 1.18em; font-weight: 700;
+  color: var(--c-warm); letter-spacing: -0.01em;
+}
+.kw-num {
+  font-family: var(--f-en, "Manrope", sans-serif); font-weight: 700;
+  font-size: 1.15em; color: var(--c-brand);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.kw-warm { color: #DC2626; font-weight: 700; }
+[data-theme="paper"] .kw-warm { color: #c41e3a; }
+[data-theme="dark"] .kw-warm { color: #ef9a9a; }
+.kw-up { color: #16A34A; font-weight: 700; }
+[data-theme="dark"] .kw-up { color: #4ade80; }
+.kw-mark {
+  background: linear-gradient(transparent 55%, rgba(229, 57, 53, 0.22) 55%);
+  font-weight: 600;
+  padding: 0 0.15em;
+}
+[data-theme="paper"] .kw-mark {
+  background: linear-gradient(transparent 55%, rgba(196, 30, 58, 0.20) 55%);
+}
+[data-theme="dark"] .kw-mark {
+  background: linear-gradient(transparent 55%, rgba(212, 165, 116, 0.25) 55%);
+}
+.kw-underline {
+  position: relative; font-weight: 700; color: var(--c-brand);
+}
+.kw-underline::after {
+  content: ''; position: absolute;
+  left: 0; right: 0; bottom: -0.18em;
+  height: 6px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6'><path d='M0 3 Q 25 0, 50 3 T 100 3' stroke='%23051C2C' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>") no-repeat center / 100% 100%;
+  opacity: 0.65;
+}
+
+/* ============================================================
+   Fragment 渐进显示(reveal.js 风 build · v5.12)
+   ============================================================
+   用法:class="fragment" → 默认隐藏 → 按 → 逐个出现
+   讲师"边讲边出现"模式 — 培训现场最关键的节奏控制
+   ============================================================ */
+.fragment {
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1.05);
+  pointer-events: none;
+}
+.fragment.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.fragment.fade-only { transform: none; }
+.fragment.from-left { transform: translateX(-16px); }
+.fragment.from-left.revealed { transform: translateX(0); }
+.fragment.zoom { transform: scale(0.85); }
+.fragment.zoom.revealed { transform: scale(1); }
+
+
+/* ============================================================
    控件 / 主题切换 / 大纲 / 提示
    ============================================================ */
 .ctrl-bar{
@@ -2454,9 +2523,41 @@ class Slideshow {
     this.curEl.textContent = idx + 1;
     this.prog.style.width = ((idx+1)/this.slides.length*100) + '%';
     location.hash = 's-' + (idx+1);
+    // v5.12 · 切片时重置该页所有 fragment 状态(从这页离开后再回来,fragment 都重新隐藏)
+    this.slides[idx].querySelectorAll('.fragment').forEach(function(f) {
+      f.classList.remove('revealed', 'current');
+    });
   }
-  next(){ this.show(Math.min(this.current+1, this.slides.length-1)); }
-  prev(){ this.show(Math.max(this.current-1, 0)); }
+  // v5.12 · Fragment 渐进显示:next() 先检查当前 slide 是否还有未 reveal 的 fragment
+  //         有 → 显示下一个,不翻页 · 没有 → 真翻页
+  //         讲师"边讲边出现"模式 · 培训现场最关键的节奏控制
+  next(){
+    var slide = this.slides[this.current];
+    var fragments = [].slice.call(slide.querySelectorAll('.fragment'));
+    if (fragments.length > 0) {
+      var nextFrag = fragments.find(function(f) { return !f.classList.contains('revealed'); });
+      if (nextFrag) {
+        fragments.forEach(function(f) { f.classList.remove('current'); });
+        nextFrag.classList.add('revealed', 'current');
+        return;  // 不翻页
+      }
+    }
+    this.show(Math.min(this.current+1, this.slides.length-1));
+  }
+  prev(){
+    var slide = this.slides[this.current];
+    var fragments = [].slice.call(slide.querySelectorAll('.fragment'));
+    if (fragments.length > 0) {
+      var revealed = fragments.filter(function(f) { return f.classList.contains('revealed'); });
+      if (revealed.length > 0) {
+        var last = revealed[revealed.length - 1];
+        last.classList.remove('revealed', 'current');
+        if (revealed.length > 1) revealed[revealed.length - 2].classList.add('current');
+        return;  // 不翻页
+      }
+    }
+    this.show(Math.max(this.current-1, 0));
+  }
   first(){ this.show(0); }
   last(){ this.show(this.slides.length-1); }
   parseHash(){
