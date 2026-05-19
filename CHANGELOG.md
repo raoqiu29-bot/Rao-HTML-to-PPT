@@ -8,6 +8,108 @@
 
 ---
 
+## v5.11.0 · 2026-05-19(可视化优先工作流 · 饶秋实战反馈第 3 弹)
+
+**主线**:饶秋 2026-05-19 锦江课件第 3 次反馈 —— "整个文字太多,讲解的时候听众抓不住重点,可视化做得不够"。
+
+实测诊断:**锦江 44 张片有 42 张是全文字页(95%)** · 全 deck 仅 4 个视觉元素 · 健康指数 **19/100**。
+
+skill v5.5 起就有完整 SVG Dashboard 版式库(12 组件)+ 24 SVG icon,**但 AI 生成时默认不用**,这是根因。
+
+### ✨ 新增
+
+#### 1. references/visualization-first.md · 完整方法论文档(370 行)
+
+包含:
+- **强制可视化触发条件**(P0 红线 + P1 推荐 + P2 兜底)— 7 个触发信号每个对应必用的版式
+- **文字 → 视觉化的 10 个常见转换模式**(每个带反例 + 正例 + 真实代码)
+- 写每页必问的 **3 个问题**(Q1 数据 → Q2 并列 → Q3 单点)
+- 跟"信息密度铁律"的关系:**字多不是字号问题,是没把数据挖出来**
+- 历史实战案例表(每改造一页加一条)
+
+#### 2. scripts/visualize-audit.sh · 可视化健康度审计工具
+
+```bash
+bash scripts/visualize-audit.sh <file.html>
+bash scripts/visualize-audit.sh <file.html> --top 10
+```
+
+**输出**:
+- 全 deck 概览:总片数 / 总字符 / 全文字页占比 / SVG 总数 / metric 总数 / Big Number/Quote
+- **健康指数 0-100**(综合算法:视觉化比例 - 高密度文字惩罚 + 视觉武器加分)
+  - ≥70 绿 / 40-69 黄 / <40 红
+- **TOP N 最该改造的页**(按字符数排序)+ 每页改造建议(基于内容启发式 — 检测到"小时/分钟/%" → 推荐 metric-row + SVG 横条;检测到"、" > 4 → 推荐 process-flow)
+
+跟 `audit-deck.sh` 互补 — audit 看"标准模块齐不齐",visualize-audit 看"视觉够不够"。
+
+#### 3. SKILL.md Step 1.65 · 可视化优先检查(强制流程)
+
+写每张 slide 前**必问 3 个问题**(数据/对比/趋势 → 并列要点 → 单点观点),按优先级降级选版式:
+- 第一选项:metric-row / process-flow / matrix-2x2 / SVG 图表
+- 第二选项:card-grid + icon + 数字
+- 第三选项(最后):split 文字 / list-clean
+
+**强约束**:**AI 默认不允许走 split + list-clean 路线**,必须先排除 Q1/Q2/Q3。
+
+#### 4. 改造示范 · 锦江"场景 1 · 痛点+提示词"页(桌面 demo 文件)
+
+`/Users/raoyuli/Desktop/可视化改造示范-场景1-2026-05-19.html`
+
+第 23 张【老版】vs 第 24 张【新版】并列:
+- **老版**:598 字符 + 0 SVG + split 两栏文字 list(8 个 `<li>`)+ prompt-block
+- **新版**:240 字符 + 3 SVG + 3 metric + 1 个 SVG 横条对比图 + prompt-block
+  - 顶部 3 大数字(2 小时 / 10 分钟 / 12×)
+  - 中部 SVG 横条对比(传统满条 vs AI 短条)— 直观看到 12 倍长度差
+  - 下部 prompt-block(讲师现场要复制,保留)
+
+**字数 -60%,视觉密度 0 → 6**,讲解时 1 秒抓住核心。
+
+### 🎯 v5.5 起的 SVG Dashboard 版式库现在被强制使用
+
+不是新增武器,是**让 AI 真的用上之前已有的武器**:
+- `.metric-row` · `.metric.v` · `.metric.l` — 大数字 + 标签
+- `.process-flow` 多节点流程 — 横向时间线
+- `.matrix-2x2` — 战略矩阵
+- `.big-number` / `.big-quote` — Hero 大字
+- `.insight-page` — 红 tag + 大字
+- SVG `<rect>` 横条对比 / `<polyline>` 折线 / `<circle stroke-dasharray>` 环形 — 直接内联
+- `.card-grid` + 卡内 `<svg>` icon(参见 `references/icons.md` 24 个图标)
+
+### 📂 文件变更
+
+```
+references/visualization-first.md      新建 370 行(完整方法论 + 10 模式 + 案例)
+scripts/visualize-audit.sh             新建 200 行(健康度审计 + TOP N 建议)
+SKILL.md                               version 5.10.0 → 5.11.0 + Step 1.65 新增(50 行)
+CHANGELOG.md                           本条
+桌面 demo:可视化改造示范-场景1-2026-05-19.html(改造前后对比 · 翻 23→24 看)
+```
+
+### 🔬 验证
+
+- [x] `visualize-audit.sh` 跑锦江 v0.3:健康指数 **19/100**,正确识别 6 张"场景 X · 痛点+提示词"全文字页为 TOP 改造目标
+- [x] 改造示范页(场景 1)Quality Gate 12/12 P0 PASS
+- [x] 改造示范页字符数 598 → 240(-60%),视觉元素 0 → 6
+- [ ] 下一步实战:用户实际跑改造,看健康指数能否上到 ≥ 40
+
+### 🧠 lessons learned
+
+| Lesson | 落到哪 |
+|---|---|
+| **AI 默认偏好文字 list,不会主动用数据可视化** — 必须强制流程拦截 | SKILL.md Step 1.65 + visualization-first.md |
+| **字多 ≠ 字号问题,是没把数据挖出来** — 改 CSS 是治标 | visualization-first.md "信息密度铁律 v5.11 补充" |
+| **skill 有功能 ≠ AI 会用** — 需要明确"什么时候用什么"的决策表 | visualization-first.md 触发条件表 |
+| **审计工具同时给"诊断 + 改造建议"** — 跟 audit-deck 同款思路,启发式提示帮 AI 切入 | visualize-audit.sh 内置建议逻辑 |
+
+### 📊 改造健康指数轨迹(以后每升级一份课件加一行)
+
+| 日期 | 课件 | 改造前 | 改造后 |
+|---|---|---|---|
+| 2026-05-19 | 锦江 v0.3(整 deck)| 19/100 | TBD(等用户实战改造)|
+| 2026-05-19 | 锦江 · 场景 1 单页 demo | 0 视觉 / 598 字 | 6 视觉 / 240 字 |
+
+---
+
 ## v5.10.0 · 2026-05-19(Lightbox 方向键导航 · 饶秋实战反馈第 2 弹)
 
 **主线**:饶秋 2026-05-19 锦江学院课件再次反馈 —— 双击卡片放大后,想看下一张要先按空白/Esc 关掉,再回原页面双击下一张,**操作流程很碎**。要的是 **Lightbox 状态下按方向键直接切到同页下一张卡片**。

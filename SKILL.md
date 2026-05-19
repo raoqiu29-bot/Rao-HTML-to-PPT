@@ -11,7 +11,7 @@ design_system: mckinsey-paper-dark
 aspect_hint: "16:9"
 modes: ["A-new", "B-outline-to-deck", "C-enhance-existing"]
 themes: ["mckinsey-blue", "paper-ink", "dark-botanical"]
-version: "5.10.0"
+version: "5.11.0"
 tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit", "svg-charts", "dashboard", "training-cycle", "anti-ai-slop", "spec-lock", "quality-gate", "multi-input", "lightbox-zoom", "click-to-copy", "upgrade-existing-deck", "audit-tool"]
 repo: "https://github.com/raoqiu29-bot/Rao-HTML-to-PPT"
 license: MIT
@@ -363,6 +363,39 @@ TAKEAWAY    (收束)         → 1-2 页:Key Insight + ending
 - 一旦发现漂移,**立即停手再修**,不要"继续写完再统一替换"
 
 **这条为什么很值得**:PPT Master(hugohe3)17.8k stars 的核心机制就是"SPEC_LOCK RE-READ PER PAGE",写在 SKILL.md 第 28 条规则,跟红线一样。我们撞过同样的坑,这次把方法补回来。
+
+### Step 1.65 · 可视化优先检查(v5.11 强制新增 · 饶秋实战反馈)
+
+> **2026-05-19 锦江课件诊断**:44 张片中 42 张是全文字页(95%),全 deck 仅 4 个视觉元素 → 用户反馈"文字太多,讲课时听众抓不住重点"。**根因**:skill v5.5 起就有 SVG Dashboard 版式,但 AI 默认走"文字 + 卡片"路线,**没主动用**。
+
+**v5.11 起强制走可视化优先**。写每张 slide 前**必须**在心里(或对话里)回答 3 个问题:
+
+```
+Q1. 这页有没有数字 / 对比 / 趋势 / 流程?
+    ─ 有 → 强制走 metric-row / process-flow / matrix-2x2 / SVG 图表,不许 split 文字 list
+    ─ 没有 → 进 Q2
+
+Q2. 这页有没有 ≥ 3 个并列要点?
+    ─ 有 → card-grid + SVG icon + 每卡数字,不许纯 card.h3+p
+    ─ 没有 → 进 Q3
+
+Q3. 这页是不是"单个核心观点"?
+    ─ 是 → big-quote / insight-page / big-number(衬线大字 hero)
+    ─ 否 → 才允许 split 文字 / list-clean
+```
+
+**强约束**:**默认不允许走 split + list-clean 路线**。AI 必须先排除 Q1/Q2/Q3,确认无法可视化才能用文字 list。
+
+**完整决策表 + 10 个常见"文字 → 视觉"转换模式 + 历史改造案例**:见 `references/visualization-first.md`。
+
+**实战验证工具**:
+```bash
+# 一键诊断课件可视化健康度(每页字符数 / SVG 数 / 改造建议)
+bash scripts/visualize-audit.sh <file.html>
+# 健康指数 <40 → 大规模改造
+# 健康指数 40-70 → 挑 3-5 张文字最多的改
+# 健康指数 ≥70 → 保持
+```
 
 ### Step 1.7 · 页面节奏规划(动手写 HTML 前必做)
 
