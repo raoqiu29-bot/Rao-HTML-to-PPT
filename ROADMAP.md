@@ -132,8 +132,60 @@
 
 ---
 
+## R_v5.16_a · Mode D 原生可编辑导出(混合渲染)
+
+**契机**:2026-05-25 GitHub 调研发现 HTML→可编辑 PPTX 是集中爆发方向(多个 Claude Code skill 同时押注)。[Hasasasa/claude-skill-html-to-pptx](https://github.com/Hasasasa/claude-skill-html-to-pptx) 提出的"vector 文字 + 装饰 PNG 垫底"混合方案是最优解。
+
+**思路**:文字 → 原生 PPT 文本框(可编辑可搜可缩放);简单几何 → OOXML shape(填充 + 边框);复杂 CSS(渐变 / 阴影 / filter / blend-mode / 复杂 transforms)→ 局部 PNG 截图作"装饰层"垫底,文字 vector 画在上面。
+
+**为什么有价值**:解决华为 PPTX 导出时遇到的"可编辑 vs 还原视觉"两难。比 skill 当前 `export-pptx.sh`(全页截图)更可编辑,比给华为做的纯重建更接近原视觉。
+
+**参考实现路径**:
+- Hasasasa 的 **5 步反假设流水线**:探测 inspect → 强制 force → 抽取 measure → 兜底栅格 fallback → 验证 verify(5a 结构化扫描 + 5b VLM audit)
+- 关键技巧:截图前用 inline `!important` 隐藏将独立绘制的元素(避免双层 bake);还原用 `style.setProperty(name, value, prio)` 保持优先级
+- `audited.html` 工作副本(修复改副本不动源 HTML)
+- `--only-slides N,N,N` 增量重跑(audit 迭代专用)
+
+**预估工程量**:5-8 天
+
+---
+
+## R_v5.16_b · TTS 讲师旁白音频
+
+**契机**:[hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) 从 17.8k★ 涨到 22.7k★,v2.8.0 新增"讲师注释 → TTS 旁白音频内嵌 PPTX"能力。
+
+**思路**:讲师注释(speaker notes)→ TTS 生成音频 → 内嵌 PPTX,学员复习时点页面自动播放讲师讲解。
+
+**为什么有价值**:培训片新 surface(`audio-narrated-deck`),让学员脱离讲师也能"听"过一遍课程。莱美客户经理出差时尤其有用。
+
+**参考实现路径**:
+- ppt-master v2.8.0 `attention_is_all_you_need_narrated.pptx` 示例
+- TTS 引擎候选:OpenAI TTS / Azure Speech / 火山引擎 / Coqui XTTS(可克隆饶秋音色)
+- 集成方式:`export-pptx.sh --with-narration` 新选项
+
+**预估工程量**:3-5 天
+
+---
+
+## R_v5.16_c · 用户自带 .pptx 母版
+
+**契机**:同源 ppt-master v2.8.0 "follow your own .pptx template" 模式。
+
+**思路**:客户已有自己的品牌 PPT 母版时,饶秋 skill 不强套墨蓝 McKinsey 风,而是**套客户的 .pptx 母版**输出 —— 内容是饶秋 skill 生成的,视觉走客户标准。
+
+**为什么有价值**:莱美客户经理 / 大客户提案场景,客户有自己的 brand。强行套饶秋墨蓝会被客户拒收。这是 ppt-master 已经做出来、且莱美高频需要的场景。
+
+**参考实现路径**:
+- 解析客户 .pptx 母版 → 提取 slide layouts / theme colors / fonts
+- 饶秋 skill 生成的内容 → 套进客户母版的 layouts
+
+**预估工程量**:4-6 天
+
+---
+
 ## 跨档案引用
 
 - 历史决策记录:[`99-归档-Archive/Rao-HTML-to-PPT-proposals/PROPOSAL-v5-2026-05-11-approved-implemented.md`](../../../99-归档-Archive/Rao-HTML-to-PPT-proposals/) §4
 - 通读笔记(为什么这 5 条被识别为机会):[`02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/通读笔记-2026-05-11.md`](../../../02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/通读笔记-2026-05-11.md) §5
 - 已做的升级:[CHANGELOG.md](CHANGELOG.md)
+- 2026-05-25 GitHub 全景调研:见 CHANGELOG.md v5.16.0 条目

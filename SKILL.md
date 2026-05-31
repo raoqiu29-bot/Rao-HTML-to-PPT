@@ -11,7 +11,7 @@ design_system: mckinsey-paper-dark
 aspect_hint: "16:9"
 modes: ["A-new", "B-outline-to-deck", "C-enhance-existing"]
 themes: ["mckinsey-blue", "paper-ink", "dark-botanical"]
-version: "5.15.0"
+version: "5.16.0"
 tags: ["training", "presentation", "mckinsey", "paper-ink", "dark-botanical", "chinese", "consulting", "html-slides", "wysiwyg-edit", "svg-charts", "dashboard", "training-cycle", "anti-ai-slop", "spec-lock", "quality-gate", "multi-input", "lightbox-zoom", "click-to-copy", "upgrade-existing-deck", "audit-tool"]
 repo: "https://github.com/raoqiu29-bot/Rao-HTML-to-PPT"
 license: MIT
@@ -76,9 +76,9 @@ license: MIT
 - 📄 PDF 导出(图片版),📊 PPTX 导出(**图片版,不可二次编辑**)
 
 **本技能的边界**(实事求是说):
-- ❌ **导出的 PPTX 是图片版**——每页一张大图塞进 PowerPoint,客户拿到后**不能改文字、不能换图表数据、不能挪元素**
+- ❌ **导出的 PPTX 是图片版**——每页一张大图塞进 PowerPoint,客户拿到后**不能改文字、不能换图表数据、不能挪元素**(⏳ **Mode D 原生可编辑导出** v5.16 规划中,借鉴 [Hasasasa/claude-skill-html-to-pptx](https://github.com/Hasasasa/claude-skill-html-to-pptx) 的"vector 文字 + 装饰 PNG 垫底"混合渲染思路)
 - ❌ 不支持 PDF/DOCX/URL 直接转 PPT(Mode B 输入靠 markdown,转换走 `references/source-input.md` 的工具表)
-- ❌ 不做 TTS 旁白 / 视频导出 / 声音克隆
+- ❌ 不做视频导出 / 声音克隆 · ⏳ **TTS 讲师旁白音频**:v5.16 规划中(借鉴 [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) v2.8.0 "speaker notes → narrated audio"能力)
 
 **何时去用 [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master)(17.8k stars)**:
 
@@ -100,6 +100,40 @@ license: MIT
 PPT Master 本地副本在 `/Users/raoyuli/Desktop/Skills/02-参考资料-References/演示工具-PresentationTools/他山之石-OtherSlideSkills/ppt-master/`。
 
 **借鉴源**:[nexu-io/html-anything](https://github.com/nexu-io/html-anything) 的"9 个 output surface"概念(2.6k stars)— 让用户明确目标平台,skill 自动适配输出规则。
+
+### ⛔ 明确不做的(v5.16 新增 · 2026-05 GitHub 全景调研后定位)
+
+2026-05 调研发现 HTML→可编辑 PPT 方向集中爆发(presenton 7.6k★ / allweonedev 2.8k★ / Hasasasa / Emily27-alt 等多个 Claude Code skill 同时押注)。本技能**明确不进入这几个战场** —— 别人做得很好,重复造没意义:
+
+| 不做 | 让谁去做 |
+|---|---|
+| AI 从零生成 PPT(Gamma 替代品) | [presenton/presenton](https://github.com/presenton/presenton) 7.6k★ / [allweonedev/presentation-ai](https://github.com/allweonedev/presentation-ai) 2.8k★ |
+| 学术 paper → 可编辑图表 / 技术路线图 | [OpenDCAI/Paper2Any](https://github.com/OpenDCAI/Paper2Any) 2.5k★ |
+| Slidev 系列 + AI 生成 | [LSTM-Kirigaya/slidev-ai](https://github.com/LSTM-Kirigaya/slidev-ai) 276★ |
+| 通用 Markdown 大纲 → PPT 一键生成 | 任何 markdown-based 工具(slidev / marp 等) |
+
+### 🎯 独特定位 · 别人没做的我们扎实做(v5.16 强化)
+
+2026-05 调研后**确认别人没做的、饶秋 skill 的独有竞争力**:
+
+1. **McKinsey 风深度锁死** — 主色 `#051C2C` 锁死、衬线只用 5 处、客户色只能覆盖 `--c-warm`。别的工具风格百花齐放(SaaS 通常 50+ 模板),饶秋是**单一风格的深度** = 差异化辨识度
+2. **培训片五段循环大纲 + 时长表** — 4 小时 = 100-140 张这种基准是培训实战沉淀的方法论(`references/layouts.md` 培训片版式),别人没人做
+3. **交互成熟度** — v5.15 已含:双主题切换(T)/ Inline Editing(E)/ Lightbox 双击放大 + 单击复制(v5.7)/ 全屏角落热区(v5.15)/ 概览(O)/ 大纲拖拽(M)。**`audit-deck.sh` 一键检测 8 个标准模块**(v5.8)。竞品多数只到 reveal.js 基础翻页
+4. **中文培训场景深度** — 字体回退矩阵、CJK kerning、合规禁用词、客户 Brand Style 卡片自动加载(`references/brand-styles/`)。其他工具都是英文 / 通用,这条饶秋专攻
+5. **实战反馈 → 沉淀闭环** — 每次现场反馈一两周内升进 skill(v5.7 Lightbox 锦江反馈 → v5.8 升必备 / v5.14 Fragment 红线 → v5.15 全屏热区取代 idle 隐藏 / v5.16 lessons-learned 累积机制)
+
+### 📖 lessons-learned · 实战累积学习机制(v5.16 新增 · 借鉴 Hasasasa)
+
+借鉴 [Hasasasa/claude-skill-html-to-pptx](https://github.com/Hasasasa/claude-skill-html-to-pptx) 的累积学习设计:
+
+- **模板**:`references/lessons-learned.md.example`(入版本控制,所有人都看 · seed)
+- **本地副本**:首次任务时 cp 一份 `references/lessons-learned.md`(已 gitignore,本地累积,不污染上游)
+- **跟 CHANGELOG 互补**:CHANGELOG 记"哪版做了什么"、lessons-learned 记"这次又踩了什么坑、根因是什么、下次怎么躲"
+- **写法纪律**:每条"症状 → 根因 → 规避 / 修复"三段齐(只写解法不写根因,下次会误用)
+- **隐私红线**:客户名 / 学员真名 / 健康数据 / 莱美内部团队 / 培训客户具体名单**绝不写**(详见全景画像 §2.5)
+- **去重**:lesson 已被某版做成 skill 默认行为 → 从本文件移除,避免双重维护
+
+**任务开始时优先 `Read references/lessons-learned.md`**(本地副本) → 降低重复踩坑概率。
 
 ### Step 0 · 检测模式(v5-beta 新增 · 借鉴 frontend-slides Phase 0)
 

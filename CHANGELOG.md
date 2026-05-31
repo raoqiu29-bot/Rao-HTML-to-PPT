@@ -8,6 +8,36 @@
 
 ---
 
+## v5.16.0 · 2026-05-25(2026-05 GitHub 全景调研后的方向调整 + 累积学习机制)
+
+**契机**:饶秋 2026-05-25 要求"去 GitHub 看看 HTML to PPT 资源,有什么新增、调整和优化,思路调整"。深读 6 个项目([presenton](https://github.com/presenton/presenton) 7.6k★ / [Hasasasa/claude-skill-html-to-pptx](https://github.com/Hasasasa/claude-skill-html-to-pptx) / [Emily27-alt/html-to-pptx](https://github.com/Emily27-alt/html-to-pptx) / [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) 22.7k★ / [LSTM-Kirigaya/slidev-ai](https://github.com/LSTM-Kirigaya/slidev-ai) 276★ / [OpenDCAI/Paper2Any](https://github.com/OpenDCAI/Paper2Any) 2.5k★),发现:
+
+1. **HTML→可编辑 PPTX 是 2026-05 集中爆发的方向** —— 多个 Claude Code skill 同时押注(Emily27-alt / Hasasasa / artifact-kit / nlj626),我们之前给华为做的方向被市场验证
+2. **Hasasasa 的"vector 文字 + 装饰 PNG 垫底"混合渲染是最优解** —— 比"全图"和"纯重建"都平衡,值得借鉴
+3. **Hasasasa 的 lessons-learned 累积学习机制** 完美契合饶秋"实战反馈→沉淀"哲学,值得直接搬过来
+4. **ppt-master 一年涨了 5k★**(17.8k → 22.7k),v2.8.0 新增 TTS 讲师旁白 + 用户自带 .pptx 模板,可借鉴
+
+**v5.16.0 这一波做完的**(✅):
+
+- ✨ 新增 `references/lessons-learned.md.example` —— 累积学习模板(seed 入版本控制 + 本地副本走 gitignore)。借鉴 Hasasasa 的 `症状索引 / 快速分流 / 渲染陷阱 / 键盘鼠标交互 / 排版反模式 / 导出兼容` 结构,内容**本土化为饶秋实战**(锦江 / 华为 / 太平保险三轮反馈沉淀)
+- ✨ SKILL.md 加段:**⛔ 明确不做的** —— 2026-05 调研后差异化定位,明确不进 presenton / Paper2Any / slidev-ai / 通用 markdown 工具 战场
+- ✨ SKILL.md 加段:**🎯 独特定位** —— McKinsey 风深度锁死 / 培训片五段方法论 / 交互成熟度(audit-deck.sh 检测 8 模块)/ 中文场景深度 / 实战反馈闭环
+- ✨ SKILL.md 加段:**📖 lessons-learned 累积机制说明** —— 跟 CHANGELOG 互补,任务开始时优先 Read 本地副本降低重复踩坑
+- 🔁 SKILL.md 边界声明改:`不做 TTS` → 改为 `⏳ TTS v5.16 规划中`(因为下一步要做了)
+- ✨ ROADMAP.md 加 3 条 v5.16 路线图:Mode D / TTS / 用户自带 .pptx 模板,各含契机 / 思路 / 价值 / 参考实现路径 / 预估工程量
+
+**v5.16 系列后续规划**(⏳ 见 ROADMAP):
+- **v5.16.1 · Mode D 原生可编辑导出**(混合渲染:vector 文字 + 装饰 PNG 垫底)—— 解决之前华为 PPTX 导出"可编辑 vs 还原视觉"两难。预估 5-8 天
+- **v5.16.2 · TTS 讲师旁白音频**(培训片新 surface:`audio-narrated-deck`)。预估 3-5 天
+- **v5.16.3 · 用户自带 .pptx 母版**(莱美 / 大客户提案场景)。预估 4-6 天
+
+**为什么分波做**:Mode D 和 TTS 是大工程(各自要新转换引擎或外部服务集成),不在一波里塞。**v5.16.0 先把"调研结论 + 累积学习机制 + 不做清单 + 独特定位"沉淀进 skill** —— 零风险、立即受益。Mode D / TTS / 自带模板分波推进,每波单独闭环。
+
+**饶秋反思**(可入 lessons-learned):
+> "GitHub 上全是同方向的,说明赛道对了,但我们要明确不做什么 —— 不重复造,专攻别人没做的深度(McKinsey 风 + 培训方法论 + 交互成熟度 + 中文)。"
+
+---
+
 ## v5.15.0 · 2026-05-19(全屏角落热区显示控件 · 饶秋实战反馈第 7 弹)
 
 **饶秋 2026-05-19 第 7 次实战反馈**(对 v5.14 全屏方案的纠偏):

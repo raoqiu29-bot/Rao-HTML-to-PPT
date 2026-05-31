@@ -34,3 +34,6 @@ __pycache__/
 # 个人本地配置(如果以后有)
 .local/
 local-brand-styles/
+
+# v5.16 lessons-learned 本地累积副本(seed 是 references/lessons-learned.md.example,入版本控制)
+references/lessons-learned.md

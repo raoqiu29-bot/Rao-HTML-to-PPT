@@ -1,0 +1,85 @@
+# Lessons Learned · 饶秋 skill 实战累积
+
+> **本文件机制**:跟 `CHANGELOG.md` 互补 —— CHANGELOG 记"做了什么版本"、本文件记"**这一次又踩了什么坑、根因是什么、下次怎么躲**"。
+>
+> **怎么用**:
+> - 每次实战反馈后(锦江第 N 弹 / 华为反馈 / 太平实战),把"症状 → 原因 → 规避 / 修复"追加进对应表
+> - 下次开 skill 时,优先 re-read 本文件,降低重复踩坑概率
+> - 写完后跟 CHANGELOG 对照:**如果这条 lesson 已经被某版做成 skill 默认,就从本文件移除**(避免双重维护)
+>
+> **怎么来的**:借鉴 [Hasasasa/claude-skill-html-to-pptx](https://github.com/Hasasasa/claude-skill-html-to-pptx) 的 lessons-learned 累积学习机制(2026-05 GitHub 调研发现)。
+>
+> **本地副本**:这个 `.example` 是 seed 模板,**入版本控制**。skill 首次被任务调用时会 cp 一份 `lessons-learned.md`(本地工作副本,**已 gitignore**),后续追加只动本地副本,不污染上游模板。想让某条 lesson 沉淀进 skill 默认,作者手动从本地复制回 `.example`。
+
+---
+
+## 写到哪
+
+| 性质 | 写在哪 |
+|---|---|
+| 通用 lesson(任何 deck 都可能撞) | "渲染陷阱" / "键盘鼠标交互" / "排版反模式" 各表 |
+| 本地业务 / 某客户专属写法 | 本地副本任意位置自由追加(`.example` 不动) |
+| 已修 bug 的版本号 / 详细诊断 | `CHANGELOG.md` 对应版本条目 |
+| 历史完整文档 | 本文件**不写** |
+
+**绝不写**(隐私红线):具体客户名 / 课件文件名 / 学员真名 / 健康数据 / 莱美内部团队成员 / 培训客户具体名单。用「某客户」「某课件」「某 PART」代指。
+
+---
+
+## 快速分流(撞坑了先看这里)
+
+1. **键盘翻页失灵 / 进度条动但不翻** → "键盘鼠标交互"
+2. **字号 / 列宽 / 溢出** → "排版反模式 · 容量"
+3. **双主题 / 配色不一致 / 深底配深字** → "渲染陷阱 · 配色叠加"
+4. **Lightbox 双击放大失效 / 单击复制无反应** → "键盘鼠标交互"
+5. **emoji / 装饰元素 audit 报 DIRTY** → "排版反模式 · 装饰红线"
+6. **Fragment / 翻页要按 N 下** → "键盘鼠标交互 · Fragment 红线"
+7. **导出 PPTX / PDF 整本重叠 / 错乱** → "导出兼容"
+8. **docx 表格列宽 / 折行难看** → "导出兼容 · Word 表格"
+
+---
+
+## 渲染陷阱
+
+| 症状 | 根因 | 规避 / 修复 |
+|---|---|---|
+| 结尾页深底配深字看不清 | `theme-mckinsey` 覆盖了 `.ending` 背景为深蓝渐变,但 `.ending h1` / `.lead` 颜色仍 `var(--c-ink)` 墨蓝 | 深色 sandwich 页(封面 / 章节 / 结尾)必须给文字单独覆盖白色 + eyebrow 用浅亮色(健康类用 `#7FCBBC`,通用用 `#FF8A7D`) |
+| 全屏 F 后控件挡画面 + 鼠标乱闪 | 老方案用 idle timer + 鼠标光标隐藏,讲师指点屏幕时控件反复闪烁、光标看不见容易慌 | v5.15:角落 hot zone(右上 320×120 / 左下 220×120 / 右下 200×120),鼠标进谁谁出现、离开就消失,光标始终保持 |
+| Win 课件机字体回退失真 | 用了 PingFang + Songti SC(Mac 专属),Win 没有这俩 | 现场用 Mac / iPad;或 PPTX 嵌入字体;或换成 Win 也有的微软雅黑 + 宋体 |
+| 双主题切换跟客户定制色冲突 | 客户深度定制了 `body.theme-mckinsey .xxx`,切到 `data-theme="paper"/"dark"` 时定制色仍生效,叠加冲突 | 注入双主题 JS 默认 saved=null → 不设 data-theme → 保持 theme-mckinsey 现状不变;按 T 才切;切到 paper/dark 后部分元素可能需要微调(在交付时说明) |
+
+## 键盘鼠标交互
+
+| 症状 | 根因 | 规避 / 修复 |
+|---|---|---|
+| 进度条动但页面不翻 / 方向键无反应 | Chrome 装了沉浸式翻译 / 划词 / Vimium 等扩展拦截 keydown | **现场用 Safari**(skill 默认推荐),或 Chrome 隐身模式。skill 的 `bindKeys` 代码本身是干净的,99% 是浏览器扩展问题 |
+| Fragment 让讲师按 N 下才翻页 | 步骤页每个 step 标了 `.fragment`,讲师反复按右键揭示后才能翻页 | v5.14 红线:**默认不用 fragment**,只在"硬性步骤依赖且讲师明确要求"才加。即使是"说→问→改" 这种有顺序的也不强求 fragment |
+| 老课件按 E / 按 T 没反应 | 早期版本没注入 v5.2 双主题 + Inline Editing | 跑 `scripts/audit-deck.sh` 查 8 个标准模块,缺哪个按 `references/upgrade-existing-deck.md` 注入 |
+| 鼠标点哪都翻页 / 选不了文字 | 老版本鼠标点击触发 `Slideshow.next()` | v5.7:翻页 = 仅键盘 / 右下角箭头 / 大纲;单击 `.prompt-block` = 复制;双击元素 = Lightbox 放大;空白处 click 不再翻页 |
+
+## 排版反模式
+
+| 模式 | 为什么有问题 | 改成什么 |
+|---|---|---|
+| 整页超长 prompt-block(>30 行填空模板) | 字号放大后底部内容被裁 | 按内容逻辑拆两页(如"基础信息 / 病史用法"),prompt-tag 写「(上)」「(下)」,两页主标题各自说明;同步重编后续页码 |
+| 装饰 emoji `<div class="dot">🎯</div>` / `<h4>🚀 行动</h4>` | McKinsey 风禁 emoji 装饰;audit 报 DIRTY | `.dot` 里换成 1 个汉字(取该步骤标题首字:设/创/角/调,跟「说/问/改/T/R/A/I/N」一个风格);标题里去 emoji 改用 `<span style="color:#16A34A">` 或 mono kicker |
+| ✅❌ 在正文 `<p>` 里 | audit 也报 DIRTY,但**这俩在对错对比里是内容不是装饰** | **保留**(它们是教学语义),在交付时跟用户说明"audit 会标但有意保留" |
+| 一行密集 metric 后跟整段语音/合规提示 | 全局放大字号后底部装不下 | 精简提示文字(去重复短句、去自我解释);或独立成"软底通知"段;或换页 |
+| 课件全是文字 + split 双栏 list(没数字 / 图 / 流程图) | 视觉重音不足,听众抓不住重点(锦江 v0.3 实战:44 张片 42 张全文字,健康度 12/100) | 走 v5.11 可视化优先:**先排除 Q1**(数字/对比/趋势/流程)**Q2**(≥3 并列要点)**Q3**(单核心观点),都不是才允许 split 文字。详见 `visualization-first.md` |
+| Fragment + 装饰 emoji + 关键词 7 武器全开 | "包装感"过强,讲师反馈"颜色太多影响观感" | v5.13 关键词减法:**只 3 种武器、2 种颜色**(墨蓝 + 客户暖色)。Fragment 默认关 |
+
+## 导出兼容
+
+| 症状 | 根因 | 规避 / 修复 |
+|---|---|---|
+| 早期课件用 `scripts/export-pdf.sh` 整本 PDF,所有页都是封面+第2页堆叠 | 该脚本的"逐页激活"机制依赖**最新 template** 的 slide 显隐 CSS,跟早期课件 Slideshow JS 不兼容 | 写最小 Playwright 脚本:`for n in 1..total: goto url#s-N + screenshot`,再用 pdf-lib 合并(华为 / 太平保险都这么做过) |
+| 导出 PPTX 图片版客户改不了字 | skill 当前 `export-pptx.sh` 是 Playwright 截图 + PptxGenJS 嵌图 | 客户要可编辑 → 走 **Mode D 混合渲染**(v5.16 规划中,见 ROADMAP);或推 hugohe3/ppt-master 配合 |
+| Word 表格"序号"竖排成"序" / "号" | docx 缺 `<w:tblLayout w:type="fixed"/>`,Word autofit 压窄短内容列 | tblPr 加 `<w:tblLayout w:type="fixed"/>` + 给序号列至少 850 DXA(10pt 中文 2 字够)+ 同步改每行 `<w:tcW>` 匹配 `<w:gridCol>` |
+| `半天 / 1 天` 在 "1" 和 "天" 之间断开 | 中文字符之间没空格,列宽不够就逐字折 | 同上,加 fixed layout + 时长列加宽到 2200+ DXA;或文案简化为"半天"或"1天" |
+
+## 增量加新条目时的提示
+
+- 写"症状 → 根因 → 规避/修复"**三段都要齐**,别只写解法(下次根因不一样就误用)
+- 客户名 / 学员真名 / 健康数据 / 莱美内部团队 / 培训客户具体名单 **绝不写**(隐私红线 · 全景画像 §2.5)
+- 写完跟 CHANGELOG 对照一遍:这条 lesson 是否已经在某版做成了 skill 默认?是就**从本文件移除**(避免双重维护;后人靠 skill 默认行为就能避开,不用再翻 lesson)
+- 通用 lesson(任何 deck 都可能撞)→ 考虑反推回 `.example` 模板,让所有人受益(手动复制,不自动覆盖)
